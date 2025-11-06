@@ -1,0 +1,248 @@
+{
+  "name": "PalAI - Rice Leaf Disease Detection (No Auth)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "palai-diagnose",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0453529f-02b2-465a-8be1-85cfa7c45ff6",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        -32
+      ],
+      "webhookId": "7f89f867-8ec7-44c9-af2b-203787d75797"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the incoming request body\nconst body = $input.item.json.body;\n\n// Ensure we have the required fields\nif (!body || !body.imageBase64) {\n  return {\n    error: 'Missing imageBase64 in request body',\n    statusCode: 400\n  };\n}\n\n// Return the parsed data\nreturn {\n  imageBase64: body.imageBase64,\n  mimeType: body.mimeType || 'image/jpeg',\n  locale: body.locale || 'en',\n  fieldNotes: body.fieldNotes || ''\n};"
+      },
+      "id": "e40bbb98-93af-41e9-8e7a-c721d22ae9cc",
+      "name": "Parse Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5b5b8a48-e755-4e34-a712-c4a226df9866",
+      "name": "Has Data?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ error: $json.error || 'Invalid request' }) }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode || 400 }}"
+        }
+      },
+      "id": "fb1b5e7c-1dac-489e-9fe5-f1cbd8b7b966",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are PalAI, an AI assistant specialized in diagnosing rice leaf diseases for Filipino farmers.\n\nAnalyze the provided rice leaf image and return a JSON response with the following structure:\n\n{\n  \"label\": \"<one of: HEALTHY, BACTERIAL_LEAF_BLIGHT, BROWN_SPOT, SHEATH_BLIGHT, TUNGRO, BLAST>\",\n  \"confidence\": <number between 0 and 1>,\n  \"severity\": \"<one of: LOW, MODERATE, HIGH>\",\n  \"explanationEn\": \"<short, actionable explanation in English for farmers>\",\n  \"explanationTl\": \"<short, actionable explanation in Tagalog/Taglish - use simple words, short sentences, Tagalog base with minimal English agricultural terms>\",\n  \"cautions\": [\"<array of short warning strings if applicable>\"]\n}\n\nImportant guidelines:\n- Analyze the image carefully for disease symptoms\n- Provide practical, farmer-friendly advice\n- For explanationTl, use Taglish C3 style: \"May signs ng Blast. I-check ang tubig. Iwasan sobrang basa.\"\n- Include treatment recommendations when applicable\n- Severity should match the visual symptoms\n- Add cautions for image quality issues or uncertain diagnoses\n\nUser's preferred language: {{ $json.locale }}\nField notes from farmer: {{ $json.fieldNotes }}\n\nImage format: {{ $json.mimeType }}\n\nPlease analyze the image and provide your diagnosis in valid JSON format only.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a rice disease expert AI. Always respond with valid JSON only. No markdown, no explanations outside the JSON structure."
+        }
+      },
+      "id": "8ff4981f-2778-453c-a43f-abf82612af31",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        992,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-pro-latest",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "122daf39-2fd4-48be-8b89-08d2232da942",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        992,
+        192
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oxkf88Ox66NtpDoS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and validate the AI response\nconst input = $input.item.json;\n\n// Handle different response structures\nlet responseText = '';\n\n// Check if response has output property (common with AI Agent)\nif (input.output) {\n  responseText = typeof input.output === 'string' ? input.output : JSON.stringify(input.output);\n} else if (input.text) {\n  responseText = input.text;\n} else if (typeof input === 'string') {\n  responseText = input;\n} else {\n  responseText = JSON.stringify(input);\n}\n\n// Remove markdown code blocks if present\nlet cleanText = responseText.trim();\n\nif (cleanText.includes('```json')) {\n  const match = cleanText.match(/```json\\s*([\\s\\S]*?)\\s*```/);\n  cleanText = match ? match[1].trim() : cleanText;\n} else if (cleanText.includes('```')) {\n  const match = cleanText.match(/```\\s*([\\s\\S]*?)\\s*```/);\n  cleanText = match ? match[1].trim() : cleanText;\n}\n\n// Parse the JSON\nlet diagnosis;\ntry {\n  diagnosis = JSON.parse(cleanText);\n} catch (e) {\n  throw new Error(`Failed to parse JSON: ${e.message}. Raw text: ${cleanText.substring(0, 100)}`);\n}\n\n// Validate required fields\nconst validLabels = ['HEALTHY', 'BACTERIAL_LEAF_BLIGHT', 'BROWN_SPOT', 'SHEATH_BLIGHT', 'TUNGRO', 'BLAST'];\nconst validSeverities = ['LOW', 'MODERATE', 'HIGH'];\n\nif (!diagnosis.label || !validLabels.includes(diagnosis.label)) {\n  throw new Error(`Invalid label: ${diagnosis.label}`);\n}\n\nif (!diagnosis.severity || !validSeverities.includes(diagnosis.severity)) {\n  throw new Error(`Invalid severity: ${diagnosis.severity}`);\n}\n\n// Clamp confidence between 0 and 1\nconst confidence = Math.max(0, Math.min(1, parseFloat(diagnosis.confidence) || 0));\n\n// Ensure cautions is an array\nconst cautions = Array.isArray(diagnosis.cautions) ? diagnosis.cautions : \n                 diagnosis.cautions ? [diagnosis.cautions] : [];\n\n// Return validated diagnosis\nreturn {\n  label: diagnosis.label,\n  confidence: confidence,\n  severity: diagnosis.severity,\n  explanationEn: diagnosis.explanationEn || '',\n  explanationTl: diagnosis.explanationTl || '',\n  cautions: cautions\n};"
+      },
+      "id": "36b42bcb-15c1-4c1a-aed2-9cd5b411730a",
+      "name": "Validate Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "2021321c-3242-4626-a0b4-d540dab614dc",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        -32
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Request": {
+      "main": [
+        [
+          {
+            "node": "Has Data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Data?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Validate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Response": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5511dbfd-e404-47ce-985f-bc7bc96bb36b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a66211367f3f22b8ef3a7eac9a5a9376e3068cc148fb86c7b4f148d0d2af1f46"
+  },
+  "id": "HbxlOVwy5qS8cQkW",
+  "tags": []
+}

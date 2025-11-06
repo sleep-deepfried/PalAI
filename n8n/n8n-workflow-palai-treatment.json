@@ -1,0 +1,254 @@
+{
+  "name": "PalAI - Rice Disease Treatment Guide",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "palai-treatment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        -32
+      ],
+      "webhookId": "treatment-webhook-id"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the incoming request body\nconst body = $input.item.json.body;\n\n// Ensure we have the required fields\nif (!body || !body.disease) {\n  return {\n    error: 'Missing disease in request body',\n    statusCode: 400\n  };\n}\n\n// Validate disease label\nconst validDiseases = ['HEALTHY', 'BACTERIAL_LEAF_BLIGHT', 'BROWN_SPOT', 'SHEATH_BLIGHT', 'TUNGRO', 'BLAST'];\nif (!validDiseases.includes(body.disease)) {\n  return {\n    error: `Invalid disease. Must be one of: ${validDiseases.join(', ')}`,\n    statusCode: 400\n  };\n}\n\n// Map disease codes to readable names\nconst diseaseNames = {\n  'HEALTHY': 'Healthy Rice',\n  'BACTERIAL_LEAF_BLIGHT': 'Bacterial Leaf Blight',\n  'BROWN_SPOT': 'Brown Spot',\n  'SHEATH_BLIGHT': 'Sheath Blight',\n  'TUNGRO': 'Tungro Virus',\n  'BLAST': 'Rice Blast'\n};\n\n// Return the parsed data\nreturn {\n  disease: body.disease,\n  diseaseName: diseaseNames[body.disease],\n  language: body.language || 'en'\n};"
+      },
+      "id": "b2c3d4e5-6789-01bc-def0-234567890bcd",
+      "name": "Parse Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c3d4e5f6-789a-12cd-ef01-34567890cdef",
+      "name": "Has Valid Data?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ error: $json.error || 'Invalid request' }) }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode || 400 }}"
+        }
+      },
+      "id": "d4e5f6a7-89ab-23de-f012-4567890defab",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an agricultural expert specializing in rice disease management in the Philippines.\n\nDisease: {{ $json.diseaseName }}\n\nProvide comprehensive treatment and prevention guidance in both English and Tagalog (Filipino language).\n\nReturn ONLY a valid JSON object with this EXACT structure (no markdown, no code blocks, no explanations):\n\n{\n  \"preventionSteps\": [\n    {\n      \"step\": 1,\n      \"titleEn\": \"Short prevention step title in English\",\n      \"titleTl\": \"Short prevention step title in Tagalog\",\n      \"descriptionEn\": \"Detailed prevention description in English (2-3 sentences, practical advice)\",\n      \"descriptionTl\": \"Detailed prevention description in Tagalog (2-3 sentences, practical advice)\"\n    }\n  ],\n  \"treatmentSteps\": [\n    {\n      \"step\": 1,\n      \"titleEn\": \"Short treatment step title in English\",\n      \"titleTl\": \"Short treatment step title in Tagalog\",\n      \"descriptionEn\": \"Detailed treatment description in English (2-3 sentences, specific actions)\",\n      \"descriptionTl\": \"Detailed treatment description in Tagalog (2-3 sentences, specific actions)\"\n    }\n  ],\n  \"sources\": [\n    {\n      \"title\": \"Source name (e.g., IRRI - Disease Management)\",\n      \"url\": \"https://example.com/full-url\"\n    }\n  ]\n}\n\nRequirements:\n- Provide 3-5 prevention steps (numbered sequentially)\n- Provide 3-5 treatment steps (numbered sequentially)\n- Include 2-4 credible sources with real URLs (IRRI, PhilRice, university research, government agriculture sites)\n- Use practical, actionable advice for Filipino farmers\n- Tagalog translations should be natural and use commonly used terms\n- Include specific product names or chemicals when relevant (with generic names in parentheses)\n- For HEALTHY plants, focus only on prevention/maintenance, keep treatmentSteps to 1-2 general care items\n- Be specific about timing, dosage, and application methods\n- Consider Philippines climate and farming practices\n\nUser's preferred language: {{ $json.language }}\n\nProvide your response in valid JSON format only. Do not include markdown code blocks or any text outside the JSON structure.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a rice disease treatment expert AI. Always respond with valid JSON only. No markdown code blocks (no ```json or ```). No explanations outside the JSON structure. Return pure JSON that starts with { and ends with }."
+        }
+      },
+      "id": "e5f6a7b8-9abc-34ef-0123-567890defabc",
+      "name": "AI Agent - Treatment",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        992,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash-latest",
+        "options": {
+          "temperature": 0.4,
+          "maxOutputTokens": 2048
+        }
+      },
+      "id": "f6a7b8c9-abcd-45f0-1234-67890defabcd",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        992,
+        192
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oxkf88Ox66NtpDoS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and validate the AI response for treatment data\nconst input = $input.item.json;\n\n// Handle different response structures\nlet responseText = '';\n\n// Check if response has output property (common with AI Agent)\nif (input.output) {\n  responseText = typeof input.output === 'string' ? input.output : JSON.stringify(input.output);\n} else if (input.text) {\n  responseText = input.text;\n} else if (typeof input === 'string') {\n  responseText = input;\n} else {\n  responseText = JSON.stringify(input);\n}\n\n// Remove markdown code blocks if present (robust handling)\nlet cleanText = responseText.trim();\n\n// Try multiple markdown removal patterns\nif (cleanText.includes('```json')) {\n  const match = cleanText.match(/```json\\s*([\\s\\S]*?)\\s*```/);\n  cleanText = match ? match[1].trim() : cleanText;\n} else if (cleanText.includes('```')) {\n  const match = cleanText.match(/```\\s*([\\s\\S]*?)\\s*```/);\n  cleanText = match ? match[1].trim() : cleanText;\n}\n\n// Remove any leading/trailing non-JSON characters\nconst jsonStart = cleanText.indexOf('{');\nconst jsonEnd = cleanText.lastIndexOf('}');\nif (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {\n  cleanText = cleanText.substring(jsonStart, jsonEnd + 1);\n}\n\n// Parse the JSON\nlet treatmentData;\ntry {\n  treatmentData = JSON.parse(cleanText);\n} catch (e) {\n  throw new Error(`Failed to parse JSON: ${e.message}. Raw text: ${cleanText.substring(0, 200)}...`);\n}\n\n// Validate and normalize preventionSteps\nif (!Array.isArray(treatmentData.preventionSteps)) {\n  throw new Error('preventionSteps must be an array');\n}\n\nconst preventionSteps = treatmentData.preventionSteps.map((step, index) => {\n  if (!step.titleEn || !step.titleTl || !step.descriptionEn || !step.descriptionTl) {\n    throw new Error(`Prevention step ${index + 1} missing required fields`);\n  }\n  return {\n    step: step.step || (index + 1),\n    titleEn: String(step.titleEn),\n    titleTl: String(step.titleTl),\n    descriptionEn: String(step.descriptionEn),\n    descriptionTl: String(step.descriptionTl)\n  };\n});\n\n// Validate and normalize treatmentSteps\nif (!Array.isArray(treatmentData.treatmentSteps)) {\n  throw new Error('treatmentSteps must be an array');\n}\n\nconst treatmentSteps = treatmentData.treatmentSteps.map((step, index) => {\n  if (!step.titleEn || !step.titleTl || !step.descriptionEn || !step.descriptionTl) {\n    throw new Error(`Treatment step ${index + 1} missing required fields`);\n  }\n  return {\n    step: step.step || (index + 1),\n    titleEn: String(step.titleEn),\n    titleTl: String(step.titleTl),\n    descriptionEn: String(step.descriptionEn),\n    descriptionTl: String(step.descriptionTl)\n  };\n});\n\n// Validate and normalize sources\nif (!Array.isArray(treatmentData.sources)) {\n  throw new Error('sources must be an array');\n}\n\nconst sources = treatmentData.sources.map((source, index) => {\n  if (!source.title || !source.url) {\n    throw new Error(`Source ${index + 1} missing required fields (title, url)`);\n  }\n  // Basic URL validation\n  if (!source.url.startsWith('http://') && !source.url.startsWith('https://')) {\n    throw new Error(`Source ${index + 1} has invalid URL: ${source.url}`);\n  }\n  return {\n    title: String(source.title),\n    url: String(source.url)\n  };\n});\n\n// Validation checks\nif (preventionSteps.length < 1 || preventionSteps.length > 10) {\n  throw new Error(`Invalid number of prevention steps: ${preventionSteps.length}. Expected 1-10.`);\n}\n\nif (treatmentSteps.length < 1 || treatmentSteps.length > 10) {\n  throw new Error(`Invalid number of treatment steps: ${treatmentSteps.length}. Expected 1-10.`);\n}\n\nif (sources.length < 1 || sources.length > 10) {\n  throw new Error(`Invalid number of sources: ${sources.length}. Expected 1-10.`);\n}\n\n// Return validated treatment data\nreturn {\n  preventionSteps: preventionSteps,\n  treatmentSteps: treatmentSteps,\n  sources: sources\n};"
+      },
+      "id": "a7b8c9d0-bcde-56f1-2345-7890defabcde",
+      "name": "Validate Treatment Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "public, max-age=3600"
+              }
+            ]
+          }
+        }
+      },
+      "id": "b8c9d0e1-cdef-67f2-3456-890defabcdef",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        -32
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Request": {
+      "main": [
+        [
+          {
+            "node": "Has Valid Data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Valid Data?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Treatment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Treatment": {
+      "main": [
+        [
+          {
+            "node": "Validate Treatment Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Treatment",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Treatment Response": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "treatment-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a66211367f3f22b8ef3a7eac9a5a9376e3068cc148fb86c7b4f148d0d2af1f46"
+  },
+  "id": "TreatmentWorkflow001",
+  "tags": []
+}
+
