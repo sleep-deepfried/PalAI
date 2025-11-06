@@ -1,0 +1,15 @@
+{
+  "name": "PalAI - Rice Leaf Disease Classification",
+  "short_name": "PalAI",
+  "description": "AI-powered rice leaf disease classification for Filipino farmers",
+  "start_url": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "icons": [],
+  "categories": ["agriculture", "productivity", "utilities"],
+  "screenshots": []
+}
+
