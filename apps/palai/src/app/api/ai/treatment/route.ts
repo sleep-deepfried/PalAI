@@ -12,6 +12,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Try n8n first
+    const n8nWebhookUrl = process.env.N8N_TREATMENT_WEBHOOK_URL;
+    
+    if (n8nWebhookUrl) {
+      try {
+        console.log('Attempting n8n treatment workflow...');
+        const n8nResponse = await fetch(n8nWebhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            disease,
+            language,
+          }),
+        });
+
+        if (n8nResponse.ok) {
+          const data = await n8nResponse.json();
+          console.log('n8n treatment workflow succeeded');
+          return NextResponse.json(data);
+        } else {
+          console.warn('n8n treatment workflow failed, falling back to Gemini API');
+        }
+      } catch (n8nError) {
+        console.warn('n8n treatment workflow error, falling back to Gemini API:', n8nError);
+      }
+    } else {
+      console.log('N8N_TREATMENT_WEBHOOK_URL not set, using Gemini API directly');
+    }
+
+    // Fallback to Gemini API
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       console.error('GEMINI_API_KEY not set');
@@ -21,6 +53,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log('Using Gemini API for treatment guide');
     const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });

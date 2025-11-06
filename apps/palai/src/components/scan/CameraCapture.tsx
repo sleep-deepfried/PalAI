@@ -1,15 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Camera, X, RotateCw } from 'lucide-react';
+import { Camera, X, RotateCw, Upload } from 'lucide-react';
 
 interface CameraCaptureProps {
   onCapture: (file: File, dataUrl: string) => void;
+  onUpload: (file: File) => void;
 }
 
-export function CameraCapture({ onCapture }: CameraCaptureProps) {
+export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
@@ -24,11 +27,48 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
 
   useEffect(() => {
     if (stream && videoRef.current) {
-      videoRef.current.srcObject = stream;
-      videoRef.current.play().catch((err) => {
-        console.error('Error playing video:', err);
-      });
+      const video = videoRef.current;
+      
+      // Wait for any previous play promise to complete
+      const playVideo = async () => {
+        try {
+          // Cancel any ongoing play attempt
+          if (playPromiseRef.current) {
+            await playPromiseRef.current.catch(() => {});
+          }
+          
+          // Set the new stream
+          video.srcObject = stream;
+          
+          // Wait for the video to be ready
+          await new Promise<void>((resolve) => {
+            if (video.readyState >= 2) {
+              resolve();
+            } else {
+              video.onloadeddata = () => resolve();
+            }
+          });
+          
+          // Start playing
+          playPromiseRef.current = video.play();
+          await playPromiseRef.current;
+          playPromiseRef.current = null;
+        } catch (err: any) {
+          // Only log if it's not an abort error
+          if (err.name !== 'AbortError') {
+            console.error('Error playing video:', err);
+          }
+        }
+      };
+      
+      playVideo();
     }
+    
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    };
   }, [stream]);
 
   const startCamera = async () => {
@@ -62,8 +102,23 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
 
   const stopCamera = () => {
     if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+      // Pause video first to prevent play interruptions
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.srcObject = null;
+      }
+      
+      // Wait for any play promise to resolve before stopping tracks
+      if (playPromiseRef.current) {
+        playPromiseRef.current.catch(() => {}).finally(() => {
+          stream.getTracks().forEach((track) => track.stop());
+        });
+      } else {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      
       setStream(null);
+      setIsReady(false);
     }
   };
 
@@ -94,6 +149,17 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
 
   const toggleCamera = () => {
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      onUpload(file);
+    }
   };
 
   if (error) {
@@ -139,9 +205,9 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
 
       {/* Instruction Text */}
       {isReady && (
-        <div className="absolute top-20 left-0 right-0 text-center px-4 pointer-events-none">
-          <div className="bg-black/60 backdrop-blur-sm inline-block px-4 py-2 rounded-lg">
-            <p className="text-white text-sm font-medium">
+        <div className="absolute top-8 left-0 right-0 text-center px-4 pointer-events-none">
+          <div className="bg-black/60 backdrop-blur-sm inline-block px-3 py-1.5 rounded-full">
+            <p className="text-white text-xs font-medium">
               Position rice leaf inside the frame
             </p>
           </div>
@@ -149,32 +215,46 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
       )}
 
       {/* Controls */}
-      <div className="absolute bottom-0 left-0 right-0 pb-8 safe-area-bottom">
+      <div className="absolute bottom-20 left-0 right-0 pb-4 safe-area-bottom">
         <div className="flex items-center justify-center gap-8 px-4">
           {/* Flip Camera */}
           <button
             onClick={toggleCamera}
             disabled={!isReady}
-            className="w-14 h-14 bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-gray-700 active:scale-95 transition-transform disabled:opacity-50"
+            className="w-12 h-12 bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-gray-700 active:scale-95 transition-transform disabled:opacity-50"
           >
-            <RotateCw className="w-6 h-6" />
+            <RotateCw className="w-5 h-5" />
           </button>
 
           {/* Capture Button */}
           <button
             onClick={handleCapture}
             disabled={!isReady}
-            className="w-20 h-20 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-transform disabled:opacity-50 disabled:bg-gray-400 shadow-lg"
+            className="w-18 h-18 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-transform disabled:opacity-50 disabled:bg-gray-400 shadow-lg"
           >
-            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
-              <Camera className="w-8 h-8 text-white" />
+            <div className="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center">
+              <Camera className="w-7 h-7 text-white" />
             </div>
           </button>
 
-          {/* Placeholder for balance */}
-          <div className="w-14 h-14"></div>
+          {/* Upload Button */}
+          <button
+            onClick={handleUploadClick}
+            className="w-12 h-12 bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-gray-700 active:scale-95 transition-transform"
+          >
+            <Upload className="w-5 h-5" />
+          </button>
         </div>
       </div>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
 
       {/* Hidden canvas for capture */}
       <canvas ref={canvasRef} className="hidden" />

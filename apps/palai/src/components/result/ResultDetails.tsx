@@ -86,7 +86,7 @@ export function ResultDetails({
     };
 
     fetchTreatmentData();
-  }, [scanId, disease, language, initialPreventionSteps.length, initialTreatmentSteps.length]);
+  }, [scanId, disease, initialPreventionSteps.length, initialTreatmentSteps.length]);
 
   return (
     <>

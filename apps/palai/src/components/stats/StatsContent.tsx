@@ -130,15 +130,25 @@ export function StatsContent({ initialScans }: StatsContentProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-purple-600 to-purple-700 text-white px-4 py-6 safe-area-top">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 mb-3">
-            <BarChart3 className="w-7 h-7" />
-            <h1 className="text-2xl font-bold">Insights</h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
+      {/* Enhanced Header with Gradient */}
+      <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 text-white px-4 py-8 safe-area-top relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-32 translate-y-32"></div>
+        </div>
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+              <BarChart3 className="w-7 h-7" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">Insights</h1>
+            </div>
           </div>
-          <p className="text-sm text-purple-100 mb-4">
+          <p className="text-purple-100 mb-6">
             Data-driven insights from rice leaf analysis
           </p>
           <ViewToggle view={view} onChange={setView} />
