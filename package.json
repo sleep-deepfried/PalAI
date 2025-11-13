@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter palai dev",
-    "build": "pnpm --filter palai build",
+    "build": "pnpm --filter @palai/ml build && pnpm --filter palai build",
     "test": "pnpm --filter palai test",
     "test:e2e": "pnpm --filter palai test:e2e",
     "lint": "pnpm -r lint",

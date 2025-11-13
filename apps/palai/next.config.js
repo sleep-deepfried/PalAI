@@ -14,8 +14,10 @@ const nextConfig = {
   experimental: {
     externalDir: true,
   },
+  transpilePackages: ['@palai/ml'],
   webpack: (config) => {
-    config.resolve.alias['@palai/ml'] = path.resolve(__dirname, '../../packages/ml/dist');
+    // Resolve @palai/ml to the source directory for better builds
+    config.resolve.alias['@palai/ml'] = path.resolve(__dirname, '../../packages/ml/src');
     return config;
   },
 };
