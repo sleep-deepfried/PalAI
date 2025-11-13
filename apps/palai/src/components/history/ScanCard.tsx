@@ -102,24 +102,8 @@ export function ScanCard({ scan }: ScanCardProps) {
               <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-green-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
             </div>
 
-            <div className="flex items-center gap-2 mb-2.5">
+            <div className="flex items-center gap-2 mb-3">
               <SeverityBadge severity={scan.severity} />
-            </div>
-
-            {/* Confidence with Progress Bar */}
-            <div className="mb-2.5">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-medium text-gray-700">Confidence</span>
-                <span className="font-semibold text-gray-900">{Math.round(scan.confidence * 100)}%</span>
-              </div>
-              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    scan.confidence >= 0.9 ? 'bg-green-500' : scan.confidence >= 0.7 ? 'bg-blue-500' : 'bg-yellow-500'
-                  }`}
-                  style={{ width: `${scan.confidence * 100}%` }}
-                />
-              </div>
             </div>
 
             <div className="flex items-center gap-1.5 text-xs text-gray-500">

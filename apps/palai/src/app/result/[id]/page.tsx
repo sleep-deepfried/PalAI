@@ -3,13 +3,12 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { supabaseAdmin } from '@/lib/supabase';
-import { ConfidenceBar } from '@/components/result/ConfidenceBar';
 import { SeverityBadge } from '@/components/result/SeverityBadge';
 import { ShareLink } from '@/components/result/ShareLink';
 import { ResultDetails } from '@/components/result/ResultDetails';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { LABEL_LABELS } from '@/lib/constants';
-import { ArrowLeft, Calendar, Camera, History as HistoryIcon, CheckCircle, AlertTriangle, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, Camera, History as HistoryIcon, CheckCircle, AlertTriangle } from 'lucide-react';
 
 async function ResultContent({ id }: { id: string }) {
   
@@ -77,12 +76,7 @@ async function ResultContent({ id }: { id: string }) {
             <div className="flex-1">
               <div className="text-sm text-white/80 mb-1">Diagnosis Result</div>
               <h1 className="text-3xl font-bold mb-2">{LABEL_LABELS[scan.label]}</h1>
-              <div className="inline-flex items-center gap-2">
-                <SeverityBadge severity={scan.severity} />
-                <span className="text-sm text-white/90">
-                  {Math.round(scan.confidence * 100)}% Confidence
-                </span>
-              </div>
+              <SeverityBadge severity={scan.severity} />
             </div>
           </div>
         </div>
@@ -101,19 +95,6 @@ async function ResultContent({ id }: { id: string }) {
               priority
             />
           </div>
-        </div>
-
-        {/* Confidence Card - Enhanced */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 animate-fade-in-delay-1">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <h3 className="font-bold text-gray-900">AI Confidence Score</h3>
-          </div>
-          <ConfidenceBar confidence={scan.confidence} />
         </div>
 
         {/* Result Details with Treatment Guide */}

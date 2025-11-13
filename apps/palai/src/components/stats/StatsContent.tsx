@@ -3,14 +3,11 @@
 import { useState } from 'react';
 import { StatCard } from '@/components/stats/StatCard';
 import { ViewToggle } from '@/components/stats/ViewToggle';
-import { ConfidenceGauge } from '@/components/stats/ConfidenceGauge';
 import { DiseaseDonut } from '@/components/stats/DiseaseDonut';
-import { ConfidenceDistribution } from '@/components/stats/ConfidenceDistribution';
 import { TrendChart } from '@/components/stats/TrendChart';
 import { LABEL_LABELS } from '@/lib/constants';
 import {
   TrendingUp,
-  Target,
   Activity,
   Award,
   BarChart3,
@@ -30,9 +27,6 @@ export function StatsContent({ initialScans }: StatsContentProps) {
 
   // Calculate statistics
   const totalScans = scans.length;
-  const avgConfidence = scans.length > 0
-    ? (scans.reduce((sum, scan) => sum + scan.confidence, 0) / scans.length) * 100
-    : 0;
 
   // Most detected disease
   const diseaseCounts = scans.reduce((acc, scan) => {
@@ -61,25 +55,6 @@ export function StatsContent({ initialScans }: StatsContentProps) {
     percentage: (count / totalScans) * 100,
   }));
 
-  // Confidence distribution
-  const confidenceRanges = [
-    { range: '0-50%', min: 0, max: 0.5, count: 0, percentage: 0 },
-    { range: '50-75%', min: 0.5, max: 0.75, count: 0, percentage: 0 },
-    { range: '75-90%', min: 0.75, max: 0.9, count: 0, percentage: 0 },
-    { range: '90-100%', min: 0.9, max: 1, count: 0, percentage: 0 },
-  ];
-
-  scans.forEach(scan => {
-    const range = confidenceRanges.find(
-      r => scan.confidence >= r.min && scan.confidence < r.max
-    ) || confidenceRanges[confidenceRanges.length - 1];
-    range.count++;
-  });
-
-  confidenceRanges.forEach(range => {
-    range.percentage = totalScans > 0 ? (range.count / totalScans) * 100 : 0;
-  });
-
   // Trend data (last 7 days)
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
@@ -99,14 +74,7 @@ export function StatsContent({ initialScans }: StatsContentProps) {
 
   // Generate insights
   const insights = [];
-  const highConfidencePercent = confidenceRanges
-    .filter(r => r.range.includes('75-90') || r.range.includes('90-100'))
-    .reduce((sum, r) => sum + r.percentage, 0);
   
-  if (highConfidencePercent >= 75) {
-    insights.push(`${highConfidencePercent.toFixed(0)}% of diagnoses have high confidence (>75%)`);
-  }
-
   if (healthScore >= 50) {
     insights.push(`${healthScore.toFixed(0)}% of scanned leaves are healthy`);
   } else if (healthScore < 30 && healthScore > 0) {
@@ -170,18 +138,12 @@ export function StatsContent({ initialScans }: StatsContentProps) {
         ) : (
           <>
             {/* Hero Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <StatCard
                 icon={Activity}
                 label="Total Scans"
                 value={totalScans}
                 color="blue"
-              />
-              <StatCard
-                icon={Target}
-                label="Avg Confidence"
-                value={`${avgConfidence.toFixed(0)}%`}
-                color="green"
               />
               <StatCard
                 icon={TrendingUp}
@@ -195,26 +157,6 @@ export function StatsContent({ initialScans }: StatsContentProps) {
                 value={topDiseaseLabel}
                 color="orange"
               />
-            </div>
-
-            {/* AI Confidence Story */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                <Target className="w-6 h-6 text-blue-600" />
-                How Accurate Are the Diagnoses?
-              </h2>
-              <p className="text-sm text-gray-600 mb-6">
-                Understanding the reliability of AI predictions
-              </p>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl p-6 flex items-center justify-center">
-                  <ConfidenceGauge confidence={avgConfidence} />
-                </div>
-                <div>
-                  <ConfidenceDistribution data={confidenceRanges} />
-                </div>
-              </div>
             </div>
 
             {/* Disease Detection Patterns */}
