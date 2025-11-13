@@ -8,7 +8,7 @@ export async function getDemoUserId(): Promise<string> {
   }
 
   // Check if demo user exists
-  const { data: existingUser } = await supabaseAdmin
+  const { data: existingUser } = await (supabaseAdmin as any)
     .from('users')
     .select('id')
     .eq('email', DEMO_EMAIL)
@@ -19,7 +19,7 @@ export async function getDemoUserId(): Promise<string> {
   }
 
   // Create demo user if it doesn't exist
-  const { data: newUser, error } = await supabaseAdmin
+  const { data: newUser, error } = await (supabaseAdmin as any)
     .from('users')
     .insert({
       email: DEMO_EMAIL,

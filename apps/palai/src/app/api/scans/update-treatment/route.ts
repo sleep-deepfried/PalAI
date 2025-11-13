@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { error } = await supabaseAdmin
+    const { error } = await (supabaseAdmin as any)
       .from('scans')
       .update({
         prevention_steps: preventionSteps || [],

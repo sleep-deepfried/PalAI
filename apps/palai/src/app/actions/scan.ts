@@ -87,9 +87,9 @@ export async function uploadAndDiagnose(formData: FormData) {
   const imageUrl = urlData.publicUrl;
 
   // Insert scan record (treatment data will be fetched separately on result page)
-  const { data: scanData, error: scanError } = await supabaseAdmin
+  const { data: scanData, error: scanError } = await supabaseAdmin!
     .from('scans')
-    .insert({
+    .insert([{
       user_id: userId,
       image_url: imageUrl,
       label: diagnosis.label,
@@ -101,14 +101,14 @@ export async function uploadAndDiagnose(formData: FormData) {
       prevention_steps: [],
       treatment_steps: [],
       sources: [],
-    })
+    }] as any)
     .select()
     .single();
 
-  if (scanError) {
-    throw new Error(`Failed to save scan: ${scanError.message}`);
+  if (scanError || !scanData) {
+    throw new Error(`Failed to save scan: ${scanError?.message || 'Unknown error'}`);
   }
 
-  redirect(`/result/${scanData.id}`);
+  redirect(`/result/${(scanData as any).id}`);
 }
 

@@ -23,7 +23,10 @@ export async function deleteScan(scanId: string): Promise<{ success: boolean; er
 
     // Extract the file path from the image URL
     // URL format: https://{project}.supabase.co/storage/v1/object/public/palai-images/{path}
-    const imageUrl = scan.image_url;
+    const imageUrl = (scan as { image_url: string }).image_url;
+    if (!imageUrl) {
+      return { success: false, error: 'Image URL not found' };
+    }
     const match = imageUrl.match(/\/palai-images\/(.+)$/);
     
     if (match && match[1]) {
@@ -84,7 +87,7 @@ export async function deleteAllScans(): Promise<{ success: boolean; error?: stri
 
     // Extract file paths from image URLs and delete from storage
     const filePaths: string[] = [];
-    scans.forEach((scan) => {
+    scans.forEach((scan: { image_url: string }) => {
       const match = scan.image_url.match(/\/palai-images\/(.+)$/);
       if (match && match[1]) {
         filePaths.push(match[1]);

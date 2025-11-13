@@ -34,7 +34,7 @@ async function StatsData() {
 
 export default function StatsPage() {
   return (
-    <Suspense fallback={<SkeletonLoader variant="chart" count={3} message="Loading insights..." />}>
+    <Suspense fallback={<SkeletonLoader variant="chart" count={3} />}>
       <StatsData />
     </Suspense>
   );

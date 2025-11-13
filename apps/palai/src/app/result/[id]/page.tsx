@@ -17,7 +17,7 @@ async function ResultContent({ id }: { id: string }) {
     notFound();
   }
   
-  const { data: scan, error } = await supabaseAdmin
+  const { data: scan, error } = await (supabaseAdmin as any)
     .from('scans')
     .select('*')
     .eq('id', id)
@@ -75,7 +75,7 @@ async function ResultContent({ id }: { id: string }) {
             </div>
             <div className="flex-1">
               <div className="text-sm text-white/80 mb-1">Diagnosis Result</div>
-              <h1 className="text-3xl font-bold mb-2">{LABEL_LABELS[scan.label]}</h1>
+              <h1 className="text-3xl font-bold mb-2">{LABEL_LABELS[scan.label as keyof typeof LABEL_LABELS]}</h1>
               <SeverityBadge severity={scan.severity} />
             </div>
           </div>
@@ -89,7 +89,7 @@ async function ResultContent({ id }: { id: string }) {
           <div className="relative w-full aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
             <Image
               src={scan.image_url}
-              alt={LABEL_LABELS[scan.label]}
+              alt={LABEL_LABELS[scan.label as keyof typeof LABEL_LABELS]}
               fill
               className="object-contain p-4"
               priority
