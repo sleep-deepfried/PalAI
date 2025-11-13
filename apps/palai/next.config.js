@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -8,6 +10,13 @@ const nextConfig = {
         hostname: '**.supabase.co',
       },
     ],
+  },
+  experimental: {
+    externalDir: true,
+  },
+  webpack: (config) => {
+    config.resolve.alias['@palai/ml'] = path.resolve(__dirname, '../../packages/ml/dist');
+    return config;
   },
 };
 

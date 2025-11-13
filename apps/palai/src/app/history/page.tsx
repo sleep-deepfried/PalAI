@@ -7,6 +7,9 @@ import { ClearAllButton } from '@/components/history/ClearAllButton';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { History as HistoryIcon, Camera, FileText, TrendingUp } from 'lucide-react';
 import { LABEL_LABELS } from '@/lib/constants';
+import type { Database, Label } from '@/types/database';
+
+type ScanRow = Database['public']['Tables']['scans']['Row'];
 
 async function ScansList() {
   if (!supabaseAdmin) {
@@ -19,7 +22,7 @@ async function ScansList() {
 
   const userId = await getDemoUserId();
 
-  const { data: scans, error } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('scans')
     .select('*')
     .eq('user_id', userId)
@@ -29,7 +32,7 @@ async function ScansList() {
     console.error('Failed to fetch scans:', error);
   }
 
-  if (!scans || scans.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mb-6 animate-fade-in">
@@ -52,14 +55,16 @@ async function ScansList() {
     );
   }
 
+  const scans = data as ScanRow[];
+
   // Calculate summary stats
   const totalScans = scans.length;
-  const diseaseCounts = scans.reduce((acc, scan) => {
+  const diseaseCounts = scans.reduce<Partial<Record<Label, number>>>((acc, scan: ScanRow) => {
     if (scan.label !== 'HEALTHY') {
-      acc[scan.label] = (acc[scan.label] || 0) + 1;
+      acc[scan.label] = (acc[scan.label] ?? 0) + 1;
     }
     return acc;
-  }, {} as Record<string, number>);
+  }, {});
   
   const topDisease = Object.entries(diseaseCounts).sort(([, a], [, b]) => b - a)[0];
   const healthyCount = scans.filter(s => s.label === 'HEALTHY').length;
