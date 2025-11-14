@@ -12,15 +12,6 @@ const diseases = [
     icon: AlertTriangle,
   },
   {
-    id: 'BACTERIAL_LEAF_BLIGHT',
-    name: 'Bacterial Leaf Blight',
-    nameTl: 'Bacterial Leaf Blight',
-    description: 'Yellow-green lesions with wavy margins',
-    descriptionTl: 'Dilaw-berdeng pinsala na may kulubot na gilid',
-    severity: 'HIGH' as const,
-    icon: Bug,
-  },
-  {
     id: 'BROWN_SPOT',
     name: 'Brown Spot',
     nameTl: 'Kayumangging Batik',
