@@ -134,25 +134,30 @@ export function StatsContent({ initialScans }: StatsContentProps) {
         ) : (
           <>
             {/* Hero Stats */}
-            <div className="grid grid-cols-3 gap-4">
-              <StatCard
-                icon={Activity}
-                label="Total Scans"
-                value={totalScans}
-                color="blue"
-              />
-              <StatCard
-                icon={TrendingUp}
-                label="Health Score"
-                value={`${healthScore.toFixed(0)}%`}
-                color="purple"
-              />
-              <StatCard
-                icon={Award}
-                label="Top Disease"
-                value={topDiseaseLabel}
-                color="orange"
-              />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <StatCard
+                  icon={Activity}
+                  label="Total Scans"
+                  value={totalScans}
+                  color="blue"
+                />
+                <StatCard
+                  icon={TrendingUp}
+                  label="Health Score"
+                  value={`${healthScore.toFixed(0)}%`}
+                  color="purple"
+                />
+              </div>
+              
+              <div className="max-w-md mx-auto">
+                <StatCard
+                  icon={Award}
+                  label="Top Disease"
+                  value={topDiseaseLabel}
+                  color="orange"
+                />
+              </div>
             </div>
 
             {/* Disease Detection Patterns */}
