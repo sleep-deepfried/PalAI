@@ -9,6 +9,10 @@ import { History as HistoryIcon, Camera, FileText, TrendingUp } from 'lucide-rea
 import { LABEL_LABELS } from '@/lib/constants';
 import type { Database, Label } from '@/types/database';
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type ScanRow = Database['public']['Tables']['scans']['Row'];
 
 async function ScansList() {

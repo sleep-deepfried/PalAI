@@ -4,6 +4,10 @@ import { StatsContent } from '@/components/stats/StatsContent';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import type { Database } from '@/types/database';
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type Scan = Database['public']['Tables']['scans']['Row'];
 
 async function StatsData() {

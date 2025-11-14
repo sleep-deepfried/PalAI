@@ -10,6 +10,10 @@ import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { LABEL_LABELS } from '@/lib/constants';
 import { ArrowLeft, Calendar, Camera, History as HistoryIcon, CheckCircle, AlertTriangle } from 'lucide-react';
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function ResultContent({ id }: { id: string }) {
   
   if (!supabaseAdmin) {
