@@ -17,6 +17,8 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
   const [error, setError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const [isReady, setIsReady] = useState(false);
+  const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
+  const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
 
   useEffect(() => {
     startCamera();
@@ -24,7 +26,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
       stopCamera();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [facingMode]);
+  }, [facingMode, currentCameraIndex]);
 
   useEffect(() => {
     if (stream && videoRef.current) {
@@ -78,20 +80,48 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
       setError(null);
       setIsReady(false);
       
-      // Try with facing mode first
+      // Get list of available cameras
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      setAvailableCameras(videoDevices);
+      
       let mediaStream: MediaStream;
-      try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
-          audio: false,
-        });
-      } catch (facingModeError) {
-        // Fallback if facing mode not supported
-        console.log('Facing mode not supported, using default camera');
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
-          audio: false,
-        });
+      
+      // If we have multiple cameras, use device ID
+      if (videoDevices.length > 1 && currentCameraIndex < videoDevices.length) {
+        const deviceId = videoDevices[currentCameraIndex].deviceId;
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              deviceId: { exact: deviceId },
+              width: { ideal: 1920 }, 
+              height: { ideal: 1080 } 
+            },
+            audio: false,
+          });
+        } catch (deviceError) {
+          // Fallback to facing mode
+          console.log('Device ID failed, trying facing mode');
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+            audio: false,
+          });
+        }
+      } else {
+        // Single camera or fallback - use facing mode
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+            audio: false,
+          });
+        } catch (facingModeError) {
+          // Final fallback
+          console.log('Facing mode not supported, using default camera');
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+            audio: false,
+          });
+        }
       }
       
       setStream(mediaStream);
@@ -160,7 +190,13 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
   };
 
   const toggleCamera = () => {
-    setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
+    // If we have multiple cameras, cycle through them
+    if (availableCameras.length > 1) {
+      setCurrentCameraIndex(prev => (prev + 1) % availableCameras.length);
+    } else {
+      // Fallback to facing mode toggle
+      setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
+    }
   };
 
   const handleUploadClick = () => {
@@ -231,14 +267,18 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
       {/* Controls */}
       <div className="absolute bottom-20 left-0 right-0 pb-4 safe-area-bottom">
         <div className="flex items-center justify-center gap-8 px-4">
-          {/* Flip Camera */}
-          <button
-            onClick={toggleCamera}
-            disabled={!isReady}
-            className="w-12 h-12 bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-gray-700 active:scale-95 transition-transform disabled:opacity-50"
-          >
-            <RotateCw className="w-5 h-5" />
-          </button>
+          {/* Flip Camera - Only show if multiple cameras available */}
+          {availableCameras.length > 1 ? (
+            <button
+              onClick={toggleCamera}
+              disabled={!isReady}
+              className="w-12 h-12 bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-gray-700 active:scale-95 transition-transform disabled:opacity-50"
+            >
+              <RotateCw className="w-5 h-5" />
+            </button>
+          ) : (
+            <div className="w-12 h-12" />
+          )}
 
           {/* Capture Button */}
           <button
