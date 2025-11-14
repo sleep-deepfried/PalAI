@@ -73,31 +73,61 @@ async function ScansList() {
   return (
     <div className="space-y-4">
       {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <FileText className="w-4 h-4 text-blue-600" />
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-center mb-3">
+              <div className="p-3 rounded-xl bg-blue-100">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
+                Total Scans
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+                {totalScans}
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{totalScans}</div>
-          <div className="text-xs text-gray-600">Total Scans</div>
         </div>
         
-        <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-green-600" />
+        <div className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-center mb-3">
+              <div className="p-3 rounded-xl bg-green-100">
+                <TrendingUp className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
+                Healthy
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+                {healthyCount}
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{healthyCount}</div>
-          <div className="text-xs text-gray-600">Healthy</div>
         </div>
         
-        <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <svg className="w-4 h-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+        <div className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-center mb-3">
+              <div className="p-3 rounded-xl bg-orange-100">
+                <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
+                Diseased
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+                {diseasedCount}
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{diseasedCount}</div>
-          <div className="text-xs text-gray-600">Diseased</div>
         </div>
       </div>
 
@@ -140,7 +170,7 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       {/* Enhanced Header with Gradient */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white px-4 py-8 safe-area-top relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white px-4 pt-72 pb-8 safe-area-top relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
@@ -168,7 +198,7 @@ export default function HistoryPage() {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-6 max-w-2xl mx-auto">
+      <div className="px-4 pt-8 pb-6 max-w-2xl mx-auto">
         <Suspense fallback={<LoadingSkeleton />}>
           <ScansList />
         </Suspense>

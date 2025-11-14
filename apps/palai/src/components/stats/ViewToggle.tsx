@@ -12,7 +12,7 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
     <div className="bg-white rounded-xl p-1 shadow-md inline-flex">
       <button
         onClick={() => onChange('personal')}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm sm:text-base font-semibold transition-all ${
           view === 'personal'
             ? 'bg-green-600 text-white'
             : 'text-gray-600 hover:text-gray-900'
@@ -23,7 +23,7 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
       </button>
       <button
         onClick={() => onChange('community')}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm sm:text-base font-semibold transition-all ${
           view === 'community'
             ? 'bg-green-600 text-white'
             : 'text-gray-600 hover:text-gray-900'

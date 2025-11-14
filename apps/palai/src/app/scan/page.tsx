@@ -228,7 +228,7 @@ export default function ScanPage() {
   return (
     <div className="fixed inset-0 bg-black flex flex-col overflow-hidden z-10">
       {/* Enhanced Header with Gradient */}
-      <div className="bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white px-5 py-6 safe-area-top flex-shrink-0 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white px-5 pt-16 pb-6 safe-area-top flex-shrink-0 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl -translate-x-24 -translate-y-24"></div>
@@ -236,31 +236,21 @@ export default function ScanPage() {
         </div>
 
         <div className="relative z-10">
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm flex-shrink-0">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold">Scan Rice Leaf</h1>
+              <h1 className="text-3xl sm:text-2xl font-bold truncate">Scan Rice Leaf</h1>
             </div>
-            
-            {/* Fullscreen Toggle Button */}
-            <button
-              onClick={toggleFullscreen}
-              className="p-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-lg active:scale-95 transition-all"
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            >
-              {isFullscreen ? (
-                <Minimize2 className="w-5 h-5" />
-              ) : (
-                <Maximize2 className="w-5 h-5" />
-              )}
-            </button>
           </div>
-          <p className="text-sm text-green-100 ml-[52px]">Position leaf inside the frame and capture</p>
+          <div className="flex items-start gap-3">
+            <div className="w-[42px] flex-shrink-0"></div>
+            <p className="text-sm text-green-100 flex-1">Position leaf inside the frame and capture</p>
+          </div>
         </div>
       </div>
 

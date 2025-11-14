@@ -48,22 +48,26 @@ export function StatCard({ icon: Icon, label, value, trend, color = 'blue' }: St
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-md">
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`p-3 rounded-xl ${colors[color]}`}>
-          <Icon className="w-6 h-6" />
+    <div className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow">
+      <div className="flex flex-col h-full">
+        {/* Icon and Label */}
+        <div className="flex items-center justify-center mb-3">
+          <div className={`p-3 rounded-xl ${colors[color]}`}>
+            <Icon className="w-6 h-6" />
+          </div>
         </div>
-        <span className="text-sm font-medium text-gray-600">{label}</span>
-      </div>
-      
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="text-3xl font-bold text-gray-900">
+        
+        <div className="text-center flex-1">
+          <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
+            {label}
+          </div>
+          
+          <div className="text-2xl sm:text-xl font-bold text-gray-900">
             {typeof value === 'number' ? displayValue : value}
           </div>
           
           {trend && (
-            <div className={`flex items-center gap-1 text-xs font-medium mt-1 ${
+            <div className={`flex items-center justify-center gap-1 text-xs font-medium mt-2 ${
               trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
             }`}>
               <span>{trend.direction === 'up' ? '↑' : '↓'}</span>

@@ -29,20 +29,18 @@ export function DiseaseDonut({ data }: DiseaseDonutProps) {
     percentage: item.percentage,
   }));
 
-  const total = data.reduce((sum, item) => sum + item.count, 0);
-
   return (
     <div className="bg-white rounded-2xl p-5 shadow-md">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Disease Distribution</h3>
+      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Disease Distribution</h3>
       
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie
             data={chartData}
             cx="50%"
-            cy="50%"
+            cy="45%"
             innerRadius={60}
-            outerRadius={100}
+            outerRadius={90}
             paddingAngle={2}
             dataKey="value"
           >
@@ -60,20 +58,16 @@ export function DiseaseDonut({ data }: DiseaseDonutProps) {
           />
           <Legend
             verticalAlign="bottom"
-            height={36}
+            height={80}
+            wrapperStyle={{ fontSize: '14px', paddingTop: '10px' }}
             formatter={(value, entry: any) => (
-              <span className="text-sm text-gray-700">
+              <span className="text-xs sm:text-sm text-gray-700">
                 {value} ({entry.payload.percentage.toFixed(0)}%)
               </span>
             )}
           />
         </PieChart>
       </ResponsiveContainer>
-
-      <div className="text-center mt-4">
-        <div className="text-2xl font-bold text-gray-900">{total}</div>
-        <div className="text-sm text-gray-500">Total Scans</div>
-      </div>
     </div>
   );
 }

@@ -25,7 +25,7 @@ body {
 /* Mobile-first: Safe area support for notch/island */
 @supports (padding-top: env(safe-area-inset-top)) {
   .safe-area-top {
-    padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+    padding-top: calc(env(safe-area-inset-top) + 1.5rem);
   }
   
   .safe-area-bottom {

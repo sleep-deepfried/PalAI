@@ -111,10 +111,16 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
       // Wait for any play promise to resolve before stopping tracks
       if (playPromiseRef.current) {
         playPromiseRef.current.catch(() => {}).finally(() => {
-          stream.getTracks().forEach((track) => track.stop());
+          stream.getTracks().forEach((track) => {
+            track.stop();
+            track.enabled = false;
+          });
         });
       } else {
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach((track) => {
+          track.stop();
+          track.enabled = false;
+        });
       }
       
       setStream(null);
@@ -142,6 +148,10 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
           type: 'image/jpeg',
         });
         const dataUrl = canvas.toDataURL('image/jpeg');
+        
+        // Stop camera after capture
+        stopCamera();
+        
         onCapture(file, dataUrl);
       }
     }, 'image/jpeg', 0.95);
@@ -158,6 +168,8 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
+      // Stop camera after file upload
+      stopCamera();
       onUpload(file);
     }
   };

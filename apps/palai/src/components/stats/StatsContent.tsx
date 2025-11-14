@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
 import { StatCard } from '@/components/stats/StatCard';
-import { ViewToggle } from '@/components/stats/ViewToggle';
 import { DiseaseDonut } from '@/components/stats/DiseaseDonut';
 import { TrendChart } from '@/components/stats/TrendChart';
 import { LABEL_LABELS } from '@/lib/constants';
@@ -22,8 +20,7 @@ interface StatsContentProps {
 }
 
 export function StatsContent({ initialScans }: StatsContentProps) {
-  const [view, setView] = useState<'personal' | 'community'>('community');
-  const scans = initialScans; // In future, could filter by view with authentication
+  const scans = initialScans;
 
   // Calculate statistics
   const totalScans = scans.length;
@@ -100,7 +97,7 @@ export function StatsContent({ initialScans }: StatsContentProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       {/* Enhanced Header with Gradient */}
-      <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 text-white px-4 py-8 safe-area-top relative overflow-hidden">
+      <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 text-white px-4 pt-24 pb-8 safe-area-top relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
@@ -109,22 +106,21 @@ export function StatsContent({ initialScans }: StatsContentProps) {
 
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex items-center gap-3 mb-4">
-            <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
-              <BarChart3 className="w-7 h-7" />
+            <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
+              <BarChart3 className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Insights</h1>
+              <h1 className="text-3xl sm:text-3xl font-bold">Insights</h1>
             </div>
           </div>
-          <p className="text-purple-100 mb-6">
+          <p className="text-base sm:text-lg text-purple-100">
             Data-driven insights from rice leaf analysis
           </p>
-          <ViewToggle view={view} onChange={setView} />
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 pt-8 pb-6 space-y-6">
         {totalScans === 0 ? (
           <div className="bg-white rounded-2xl p-8 text-center shadow-md">
             <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -200,10 +196,7 @@ export function StatsContent({ initialScans }: StatsContentProps) {
 
             {/* Context Message */}
             <div className="text-center text-sm text-gray-500 pt-4">
-              <p>Showing community insights from {totalScans} total scans</p>
-              <p className="text-xs mt-1 text-gray-400">
-                Personal view requires authentication
-              </p>
+              <p>Showing insights from {totalScans} total scans</p>
             </div>
           </>
         )}
