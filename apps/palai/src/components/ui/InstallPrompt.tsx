@@ -103,8 +103,8 @@ export function InstallPrompt() {
                 </p>
                 <ol className="space-y-1 ml-6 list-decimal text-green-50">
                   <li>Tap the Share button below</li>
-                  <li>Scroll and tap "Add to Home Screen"</li>
-                  <li>Tap "Add" to install</li>
+                  <li>Scroll and tap &ldquo;Add to Home Screen&rdquo;</li>
+                  <li>Tap &ldquo;Add&rdquo; to install</li>
                 </ol>
               </div>
             ) : (

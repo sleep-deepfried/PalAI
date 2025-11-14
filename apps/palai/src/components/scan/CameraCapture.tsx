@@ -23,6 +23,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
     return () => {
       stopCamera();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facingMode]);
 
   useEffect(() => {
@@ -65,8 +66,9 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
     }
     
     return () => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
+      const currentVideo = videoRef.current;
+      if (currentVideo) {
+        currentVideo.srcObject = null;
       }
     };
   }, [stream]);
