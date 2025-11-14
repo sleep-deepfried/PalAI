@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { FullscreenHandler } from '@/components/ui/FullscreenHandler';
+import { InstallPrompt } from '@/components/ui/InstallPrompt';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-50">
         <FullscreenHandler />
+        <InstallPrompt />
         <div className="min-h-screen pb-16">
           {children}
         </div>
