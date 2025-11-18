@@ -159,6 +159,75 @@ For production use:
 
 5. **Implement rate limiting** to prevent abuse
 
+## Managing EC2 Instance
+
+If you're running n8n on AWS EC2, use these scripts to manage your instance:
+
+### Prerequisites
+
+1. Install [AWS CLI](https://aws.amazon.com/cli/)
+2. Configure AWS credentials:
+   ```bash
+   aws configure
+   ```
+
+### Setup
+
+Set your EC2 instance ID as an environment variable:
+
+```bash
+export N8N_EC2_INSTANCE_ID=i-xxxxxxxxxxxxx
+export AWS_REGION=us-east-1  # Optional, defaults to us-east-1
+```
+
+Or add to your `~/.zshrc` or `~/.bashrc`:
+
+```bash
+echo 'export N8N_EC2_INSTANCE_ID=i-xxxxxxxxxxxxx' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### Stop Instance
+
+Stop the EC2 instance to save costs when not in use:
+
+```bash
+cd n8n
+./stop-ec2.sh
+```
+
+Or with instance ID directly:
+
+```bash
+./stop-ec2.sh i-xxxxxxxxxxxxx
+```
+
+### Start Instance
+
+Start the EC2 instance when you need it:
+
+```bash
+cd n8n
+./start-ec2.sh
+```
+
+The script will display the public IP and n8n URL once started.
+
+### Check Status
+
+Check the current status of your instance:
+
+```bash
+cd n8n
+./ec2-status.sh
+```
+
+This shows:
+- Instance state (running/stopped/stopping/pending)
+- Instance type
+- Public and private IPs
+- n8n URL (when running)
+
 ## Troubleshooting
 
 ### Workflow not executing
