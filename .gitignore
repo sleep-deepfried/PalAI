@@ -43,7 +43,3 @@ lerna-debug.log*
 
 # Supabase
 apps/palai/.supabase/
-
-# n8n
-n8n_data/
-

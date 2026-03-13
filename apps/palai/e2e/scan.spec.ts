@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Scan Flow - n8n', () => {
-  test('should complete scan flow with n8n provider', async ({ page }) => {
-    // Mock n8n webhook response
-    await page.route('**/webhook/palai-diagnose', async (route) => {
+test.describe('Scan Flow - Next API', () => {
+  test('should complete scan flow with Next API provider', async ({ page }) => {
+    // Mock Next API response
+    await page.route('**/api/ai/diagnose', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -29,47 +29,15 @@ test.describe('Scan Flow - n8n', () => {
   });
 });
 
-test.describe('Scan Flow - Next API Fallback', () => {
-  test('should fallback to Next API when n8n fails', async ({ page }) => {
-    // Mock n8n failure
-    await page.route('**/webhook/palai-diagnose', async (route) => {
+test.describe('Scan Flow - Local Mock Fallback', () => {
+  test('should fallback to local mock when Next API fails', async ({ page }) => {
+    // Mock Next API failure
+    await page.route('**/api/ai/diagnose', async (route) => {
       await route.fulfill({
         status: 500,
         contentType: 'application/json',
         body: JSON.stringify({ error: 'Service unavailable' }),
       });
-    });
-
-    // Mock Next API success
-    await page.route('**/api/ai/diagnose', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          label: 'BLAST',
-          confidence: 0.85,
-          severity: 'HIGH',
-          explanationEn: 'Fallback explanation',
-          explanationTl: 'Fallback explanation tl',
-          cautions: ['Test caution'],
-        }),
-      });
-    });
-
-    await page.goto('/scan');
-    await expect(page.locator('text=Scan Rice Leaf')).toBeVisible();
-  });
-});
-
-test.describe('Scan Flow - Local Mock', () => {
-  test('should use local mock when both providers fail', async ({ page }) => {
-    // Mock both providers failing
-    await page.route('**/webhook/palai-diagnose', async (route) => {
-      await route.fulfill({ status: 500 });
-    });
-
-    await page.route('**/api/ai/diagnose', async (route) => {
-      await route.fulfill({ status: 500 });
     });
 
     await page.goto('/scan');
@@ -92,4 +60,3 @@ test.describe('Result Page', () => {
     // Should show 404 or error message since scan doesn't exist
   });
 });
-

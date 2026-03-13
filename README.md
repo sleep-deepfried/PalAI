@@ -12,7 +12,6 @@
 - [AI Architecture](#ai-architecture)
   - [Two-Step AI Approach](#two-step-ai-approach)
   - [Treatment API](#treatment-api)
-  - [n8n Integration](#n8n-integration)
 - [Data Storytelling Dashboard](#data-storytelling-dashboard)
 - [Loading UX](#loading-ux)
 - [Testing](#testing)
@@ -25,7 +24,7 @@
 
 ### Core Functionality
 - **📸 Image Upload & Camera Capture**: Upload images or capture directly from device camera
-- **🤖 AI-Powered Diagnosis**: Multi-provider failover system (n8n → Next API → Local Mock)
+- **🤖 AI-Powered Diagnosis**: Multi-provider failover system (Next API → Local Mock)
 - **💊 Treatment Guide**: Step-by-step prevention and treatment recommendations
 - **🌍 Bilingual Support**: Results in English and Tagalog (Taglish C3 style)
 - **📚 Scan History**: View past diagnoses with thumbnails and metadata
@@ -103,17 +102,11 @@ PalAI/
 │   └── ml/                       # ML provider package
 │       └── src/
 │           ├── providers/        # AI providers
-│           │   ├── n8n.ts       # n8n webhook
 │           │   ├── nextapi.ts   # Gemini fallback
 │           │   └── local.ts     # Mock provider
 │           ├── schema.ts        # Zod validation
 │           ├── failover.ts      # Failover logic
 │           └── types.ts         # TypeScript interfaces
-├── n8n/                          # n8n workflows & config
-│   ├── docker-compose.yml       # Local n8n setup
-│   ├── n8n-workflow-palai.json  # Diagnosis workflow
-│   ├── n8n-workflow-palai-treatment.json  # Treatment workflow
-│   └── README.md                # n8n setup guide
 ├── .gitignore                    # Git ignore rules
 ├── .eslintrc.json               # ESLint config
 ├── .prettierrc                  # Prettier config
@@ -134,7 +127,6 @@ PalAI/
 - Node.js 18+ and pnpm 8+
 - Supabase account and project
 - Google Gemini API key
-- Docker (optional, for local n8n)
 
 ### 1. Clone and Install
 
@@ -166,11 +158,6 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 # AI
 GEMINI_API_KEY=your-gemini-api-key
 GEMINI_MODEL=gemini-1.5-flash
-
-# n8n (optional for local dev)
-N8N_WEBHOOK_URL=http://localhost:5678/webhook/palai-diagnose
-N8N_TREATMENT_WEBHOOK_URL=http://localhost:5678/webhook/palai-treatment
-N8N_SIGNING_SECRET=your-secret-key
 ```
 
 **Where to get these:**
@@ -180,7 +167,6 @@ N8N_SIGNING_SECRET=your-secret-key
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: `anon` `public` key
   - `SUPABASE_SERVICE_ROLE_KEY`: `service_role` `secret` key
 - **Gemini API**: [Google AI Studio](https://makersuite.google.com/app/apikey)
-- **n8n**: Generated when you import workflows
 
 ### 3. Supabase Setup
 
@@ -346,13 +332,12 @@ If NO treatment data:
 ### Failover System
 
 ```typescript
-// Primary → Fallback → Last Resort
-n8n Provider → Next API (Gemini) → Local Mock
+// Primary → Fallback
+Next API (Gemini) → Local Mock
 ```
 
-1. **n8n Provider**: Primary AI via Docker webhook
-2. **Next API Provider**: Fallback using Google Gemini
-3. **Local Mock Provider**: Deterministic mock for development
+1. **Next API Provider**: Primary AI using Google Gemini
+2. **Local Mock Provider**: Deterministic mock for development
 
 ---
 
@@ -422,97 +407,7 @@ ADD COLUMN sources JSONB DEFAULT '[]';
 
 ---
 
-## 🔧 n8n Integration
-
-### Diagnosis Workflow Setup
-
-#### 1. Start n8n
-
-```bash
-cd n8n
-docker-compose up -d
-```
-
-Access n8n at `http://localhost:5678`
-
-#### 2. Import Diagnosis Workflow
-
-1. Open n8n → **Workflows** → **Import from File**
-2. Select `n8n/n8n-workflow-palai.json`
-3. Workflow includes:
-   - ✅ Webhook trigger (`/palai-diagnose`)
-   - ✅ AI Agent with Google Gemini Chat Model
-   - ✅ Response validation
-   - ✅ Error handling
-
-#### 3. Import Treatment Workflow
-
-1. **Workflows** → **Import from File**
-2. Select `n8n/n8n-workflow-palai-treatment.json`
-3. Workflow includes:
-   - ✅ Webhook trigger (`/palai-treatment`)
-   - ✅ AI Agent for treatment generation
-   - ✅ Step-by-step validation
-   - ✅ Source URL verification
-
-#### 4. Configure Credentials
-
-1. Open each workflow
-2. Click **Google Gemini Chat Model** node
-3. Add your **Google PaLM API** credentials
-4. Save
-
-#### 5. Get Webhook URLs
-
-1. Click on **Webhook** node in each workflow
-2. Copy **Production URL**
-3. Update `.env.local`:
-   ```env
-   N8N_WEBHOOK_URL=http://localhost:5678/webhook/palai-diagnose
-   N8N_TREATMENT_WEBHOOK_URL=http://localhost:5678/webhook/palai-treatment
-   ```
-
-#### 6. Activate Workflows
-
-Click the **Active** toggle in the top-right of each workflow.
-
-### Testing n8n
-
-```bash
-# Test diagnosis endpoint
-curl -X POST http://localhost:5678/webhook/palai-diagnose \
-  -H "Content-Type: application/json" \
-  -d '{
-    "body": {
-      "imageBase64": "BASE64_IMAGE_DATA",
-      "mimeType": "image/jpeg",
-      "locale": "en"
-    }
-  }'
-
-# Test treatment endpoint
-curl -X POST http://localhost:5678/webhook/palai-treatment \
-  -H "Content-Type: application/json" \
-  -d '{
-    "body": {
-      "disease": "BLAST",
-      "language": "en"
-    }
-  }'
-```
-
-### Production n8n
-
-For production:
-1. Deploy n8n to cloud (Railway, Render, etc.)
-2. Update webhook URLs to public URLs
-3. Enable HTTPS
-4. Set up authentication
-5. Implement rate limiting
-
----
-
-## 📊 Data Storytelling Dashboard
+## � Data Storytelling Dashboard
 
 ### Stats Page Features
 
@@ -726,23 +621,12 @@ Set all environment variables from `.env.local` in your hosting platform:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL`
-- `N8N_WEBHOOK_URL` (if using n8n in production)
-- `N8N_TREATMENT_WEBHOOK_URL`
 
 ### Database
 
 - Ensure RLS policies are enabled in Supabase
 - Verify storage bucket is configured as public
 - Run both migrations (001 and 002)
-
-### n8n (Production)
-
-For production n8n:
-1. Deploy n8n to cloud service
-2. Update webhook URLs to public URLs
-3. Enable HTTPS
-4. Implement authentication
-5. Set up rate limiting
 
 ---
 

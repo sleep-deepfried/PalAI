@@ -28,7 +28,6 @@ export async function uploadAndDiagnose(formData: FormData) {
   const processedBuffer = await processImage(buffer);
 
   // Diagnose with failover
-  const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
   const diagnosis = await diagnoseWithFailover(
     {
       imageBuffer: processedBuffer,
@@ -36,12 +35,6 @@ export async function uploadAndDiagnose(formData: FormData) {
       promptExtras: { locale },
     },
     {
-      n8n: n8nWebhookUrl
-        ? {
-            webhookUrl: n8nWebhookUrl,
-            signingSecret: process.env.N8N_SIGNING_SECRET,
-          }
-        : undefined,
       nextApi: {
         baseUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
       },
