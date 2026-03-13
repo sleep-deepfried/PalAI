@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { Providers } from '@/components/layout/Providers';
 import { FullscreenHandler } from '@/components/ui/FullscreenHandler';
 import { InstallPrompt } from '@/components/ui/InstallPrompt';
 import './globals.css';
@@ -24,22 +25,17 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-gray-50">
-        <FullscreenHandler />
-        <InstallPrompt />
-        <div className="min-h-screen pb-16">
-          {children}
-        </div>
-        <BottomNav />
+        <Providers>
+          <FullscreenHandler />
+          <InstallPrompt />
+          <div className="min-h-screen pb-16">{children}</div>
+          <BottomNav />
+        </Providers>
       </body>
     </html>
   );
 }
-

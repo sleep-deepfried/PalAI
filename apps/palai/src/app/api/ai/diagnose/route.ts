@@ -26,21 +26,15 @@ export async function POST(request: NextRequest) {
     const { imageBase64, mimeType, locale, fieldNotes } = body;
 
     if (!imageBase64) {
-      return NextResponse.json(
-        { error: 'imageBase64 is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'imageBase64 is required' }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: 'GEMINI_API_KEY not configured' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
     }
 
-    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+    const modelName = process.env.GEMINI_DIAGNOSE_MODEL || 'gemini-2.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
 
@@ -70,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     const response = await result.response;
     let text = response.text();
-    
+
     // Remove markdown code blocks if present
     if (text.includes('```json')) {
       const match = text.match(/```json\n([\s\S]*?)\n```/);
@@ -79,17 +73,13 @@ export async function POST(request: NextRequest) {
       const match = text.match(/```\n([\s\S]*?)\n```/);
       text = match ? match[1] : text;
     }
-    
+
     const json = JSON.parse(text);
     const validated = validateAndClampDiagnoseOutput(json);
 
     return NextResponse.json(validated);
   } catch (error) {
     console.error('Gemini API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process image' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to process image' }, { status: 500 });
   }
 }
-

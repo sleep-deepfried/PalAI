@@ -6,24 +6,18 @@ export async function POST(req: NextRequest) {
     const { disease, language = 'en' } = await req.json();
 
     if (!disease) {
-      return NextResponse.json(
-        { error: 'Disease label is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Disease label is required' }, { status: 400 });
     }
 
     // Use Gemini API for treatment guide
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       console.error('GEMINI_API_KEY not set');
-      return NextResponse.json(
-        { error: 'AI service not configured' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'AI service not configured' }, { status: 500 });
     }
 
     console.log('Using Gemini API for treatment guide');
-    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+    const modelName = process.env.GEMINI_TREATMENT_MODEL || 'gemini-2.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
 
@@ -106,4 +100,3 @@ ${disease === 'HEALTHY' ? '- For healthy plants, focus only on prevention/mainte
     );
   }
 }
-

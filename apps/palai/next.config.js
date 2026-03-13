@@ -2,8 +2,9 @@ const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: ['dolly-lauric-obdulia.ngrok-free.dev'],
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'lh3.googleusercontent.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -23,4 +24,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-

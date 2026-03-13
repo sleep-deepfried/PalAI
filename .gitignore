@@ -43,3 +43,6 @@ lerna-debug.log*
 
 # Supabase
 apps/palai/.supabase/
+
+# Kiro
+.kiro/

@@ -1,0 +1,4 @@
+# file: C:\Users\pulid\Documents\PalAI\edge_hub\config.py
+# hypothesis_version: 6.151.9
+
+['*', '0.0.0.0', '5000', 'CORS_ORIGINS', 'EDGE_HOST', 'EDGE_PORT', 'PALAI_API_URL']

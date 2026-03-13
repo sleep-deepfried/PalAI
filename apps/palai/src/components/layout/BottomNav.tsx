@@ -20,22 +20,21 @@ export function BottomNav() {
         {links.map((link) => {
           const isActive = pathname === link.href;
           const Icon = link.icon;
-          
+
           return (
             <Link
               key={link.href}
               href={link.href}
+              data-tour={link.label === 'Scan' ? 'nav-scan' : undefined}
               className={`flex flex-col items-center justify-center gap-1 transition-all relative ${
-                isActive
-                  ? 'text-green-600'
-                  : 'text-gray-600 hover:text-green-600 active:scale-95'
+                isActive ? 'text-green-600' : 'text-gray-600 hover:text-green-600 active:scale-95'
               }`}
             >
               {/* Active indicator */}
               {isActive && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-green-600 rounded-full" />
               )}
-              
+
               <Icon className={`w-6 h-6 transition-transform ${isActive ? 'scale-110' : ''}`} />
               <span className={`text-xs transition-all ${isActive ? 'font-bold' : 'font-medium'}`}>
                 {link.label}
@@ -47,4 +46,3 @@ export function BottomNav() {
     </nav>
   );
 }
-

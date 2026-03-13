@@ -1,5 +1,20 @@
 import Link from 'next/link';
-import { Camera, History, Leaf, Shield, Zap, Brain, CheckCircle, AlertTriangle, Info, BarChart3, Droplets, Bug } from 'lucide-react';
+import {
+  Camera,
+  History,
+  Leaf,
+  Shield,
+  Zap,
+  Brain,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  BarChart3,
+  Droplets,
+  Bug,
+} from 'lucide-react';
+import { AuthButton } from '@/components/layout/AuthButton';
+import { OnboardingTour } from '@/components/ui/OnboardingTour';
 
 const diseases = [
   {
@@ -49,6 +64,7 @@ const severityColors = {
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+      <OnboardingTour />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white px-4 py-10 sm:py-16 relative overflow-hidden">
         {/* Background Pattern */}
@@ -64,8 +80,11 @@ export default function HomePage() {
               <Leaf className="w-10 h-10" />
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">PalAI</h1>
+            <div className="ml-auto">
+              <AuthButton />
+            </div>
           </div>
-          
+
           <p className="text-lg sm:text-xl text-green-50 mb-6 animate-fade-in-delay-1">
             AI-powered rice leaf disease detection para sa Filipino farmers
           </p>
@@ -109,6 +128,7 @@ export default function HomePage() {
         {/* Primary CTA with Pulse Animation */}
         <Link
           href="/scan"
+          data-tour="scan-cta"
           className="block w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-2xl p-6 shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-200 mb-6 animate-float"
         >
           <div className="flex items-center gap-4">
@@ -117,9 +137,7 @@ export default function HomePage() {
             </div>
             <div className="flex-1 text-left">
               <div className="text-xl font-bold mb-1">Scan Rice Leaf Now</div>
-              <div className="text-sm text-green-50">
-                Take a photo or upload image
-              </div>
+              <div className="text-sm text-green-50">Take a photo or upload image</div>
             </div>
             <div className="text-2xl">→</div>
           </div>
@@ -129,6 +147,7 @@ export default function HomePage() {
         <div className="grid grid-cols-2 gap-4 mb-8">
           <Link
             href="/history"
+            data-tour="history"
             className="bg-white rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-200 active:scale-95 border border-gray-100 group"
           >
             <div className="bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors">
@@ -137,9 +156,10 @@ export default function HomePage() {
             <div className="text-sm font-semibold text-gray-900">History</div>
             <div className="text-xs text-gray-500">View past scans</div>
           </Link>
-          
+
           <Link
             href="/stats"
+            data-tour="insights"
             className="bg-white rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-200 active:scale-95 border border-gray-100 group"
           >
             <div className="bg-purple-50 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:bg-purple-100 transition-colors">
@@ -156,7 +176,7 @@ export default function HomePage() {
             <span className="text-2xl">📱</span>
             How it works
           </h2>
-          
+
           <div className="space-y-4">
             <div className="flex gap-4 items-start group">
               <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
@@ -164,27 +184,33 @@ export default function HomePage() {
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-gray-900 mb-1">Take a photo</div>
-                <div className="text-sm text-gray-600">Capture or upload a clear image of the rice leaf</div>
+                <div className="text-sm text-gray-600">
+                  Capture or upload a clear image of the rice leaf
+                </div>
               </div>
             </div>
-            
+
             <div className="flex gap-4 items-start group">
               <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
                 2
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-gray-900 mb-1">AI Analysis</div>
-                <div className="text-sm text-gray-600">Our AI instantly analyzes the leaf for diseases</div>
+                <div className="text-sm text-gray-600">
+                  Our AI instantly analyzes the leaf for diseases
+                </div>
               </div>
             </div>
-            
+
             <div className="flex gap-4 items-start group">
               <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
                 3
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-gray-900 mb-1">Get treatment guide</div>
-                <div className="text-sm text-gray-600">Receive detailed advice in English & Tagalog</div>
+                <div className="text-sm text-gray-600">
+                  Receive detailed advice in English & Tagalog
+                </div>
               </div>
             </div>
           </div>
@@ -198,7 +224,7 @@ export default function HomePage() {
               Common Rice Diseases
             </h2>
           </div>
-          
+
           <div className="space-y-3">
             {diseases.map((disease, index) => {
               const Icon = disease.icon;
@@ -209,19 +235,27 @@ export default function HomePage() {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
-                      disease.severity === 'HIGH' ? 'bg-red-100' : 'bg-yellow-100'
-                    }`}>
-                      <Icon className={`w-5 h-5 ${
-                        disease.severity === 'HIGH' ? 'text-red-600' : 'text-yellow-600'
-                      }`} />
+                    <div
+                      className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+                        disease.severity === 'HIGH' ? 'bg-red-100' : 'bg-yellow-100'
+                      }`}
+                    >
+                      <Icon
+                        className={`w-5 h-5 ${
+                          disease.severity === 'HIGH' ? 'text-red-600' : 'text-yellow-600'
+                        }`}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-gray-900 text-sm">{disease.name}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          disease.severity === 'HIGH' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                        }`}>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            disease.severity === 'HIGH'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}
+                        >
                           {disease.severity === 'HIGH' ? 'High Risk' : 'Moderate'}
                         </span>
                       </div>

@@ -30,6 +30,8 @@ export interface Database {
           email: string;
           name: string;
           role: 'FARMER' | 'ADMIN';
+          image_url: string | null;
+          is_onboarded: boolean;
           created_at: string;
         };
         Insert: {
@@ -37,6 +39,8 @@ export interface Database {
           email: string;
           name: string;
           role?: 'FARMER' | 'ADMIN';
+          image_url?: string | null;
+          is_onboarded?: boolean;
           created_at?: string;
         };
         Update: {
@@ -44,7 +48,26 @@ export interface Database {
           email?: string;
           name?: string;
           role?: 'FARMER' | 'ADMIN';
+          image_url?: string | null;
+          is_onboarded?: boolean;
           created_at?: string;
+        };
+      };
+      verification_tokens: {
+        Row: {
+          identifier: string;
+          token: string;
+          expires: string;
+        };
+        Insert: {
+          identifier: string;
+          token: string;
+          expires: string;
+        };
+        Update: {
+          identifier?: string;
+          token?: string;
+          expires?: string;
         };
       };
       scans: {
@@ -97,4 +120,3 @@ export interface Database {
     };
   };
 }
-

@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { CameraCapture } from '@/components/scan/CameraCapture';
 import { ImagePreview } from '@/components/scan/ImagePreview';
+import { SourceToggle } from '@/components/scan/SourceToggle';
+import { HubStream } from '@/components/scan/HubStream';
+import { HubCaptureButton } from '@/components/scan/HubCaptureButton';
 import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
 import { Step } from '@/components/ui/MultiStepProgress';
 import { uploadAndDiagnose } from '../actions/scan';
@@ -10,6 +15,8 @@ import { redirect } from 'next/navigation';
 import { Maximize2, Minimize2 } from 'lucide-react';
 
 export default function ScanPage() {
+  const router = useRouter();
+  const { isLoading } = useRequireAuth();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,6 +26,18 @@ export default function ScanPage() {
   const [statusMessage, setStatusMessage] = useState('');
   const [isCancelled, setIsCancelled] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [source, setSource] = useState<'mobile' | 'hub'>('mobile');
+  const [isHubCapturing, setIsHubCapturing] = useState(false);
+  const [hubError, setHubError] = useState<string | null>(null);
+  const [tunnelUrl, setTunnelUrl] = useState<string | null>(null);
+  const [isHubAvailable, setIsHubAvailable] = useState(false);
+
+  // Resolve tunnel URL on client only to avoid SSR/client hydration mismatch
+  useEffect(() => {
+    const url = process.env.NEXT_PUBLIC_PI_TUNNEL_URL ?? null;
+    setTunnelUrl(url);
+    setIsHubAvailable(!!url && url.trim().length > 0);
+  }, []);
 
   // Request fullscreen on mount (requires user interaction to work)
   useEffect(() => {
@@ -78,15 +97,21 @@ export default function ScanPage() {
     reader.readAsDataURL(file);
   };
 
-  const simulateProgress = (step: number, startPercent: number, endPercent: number, duration: number, message: string) => {
+  const simulateProgress = (
+    step: number,
+    startPercent: number,
+    endPercent: number,
+    duration: number,
+    message: string
+  ) => {
     return new Promise<void>((resolve) => {
       setCurrentStep(step);
       setStatusMessage(message);
-      
+
       const steps = 20;
       const increment = (endPercent - startPercent) / steps;
       const interval = duration / steps;
-      
+
       let current = startPercent;
       const timer = setInterval(() => {
         if (isCancelled) {
@@ -94,10 +119,10 @@ export default function ScanPage() {
           resolve();
           return;
         }
-        
+
         current += increment;
         setProgress(Math.min(current, endPercent));
-        
+
         if (current >= endPercent) {
           clearInterval(timer);
           resolve();
@@ -113,44 +138,43 @@ export default function ScanPage() {
     setIsCancelled(false);
     setProgress(0);
     setCurrentStep(0);
-    
+
     try {
       // Step 1: Uploading (0-25%)
       await simulateProgress(0, 0, 25, 800, 'Preparing image for upload...');
       if (isCancelled) throw new Error('Cancelled');
-      
+
       // Step 2: Processing (25-50%)
       setCurrentStep(1);
       setStatusMessage('Processing image...');
       setProgress(25);
-      
+
       const formData = new FormData();
       formData.append('image', selectedImage);
       formData.append('locale', locale);
-      
+
       await simulateProgress(1, 25, 50, 1000, 'Optimizing image quality...');
       if (isCancelled) throw new Error('Cancelled');
-      
+
       // Step 3: AI Analysis (50-95%)
       setCurrentStep(2);
       setStatusMessage('Analyzing with AI...');
       setProgress(50);
-      
+
       // Start the actual upload in background
       const uploadPromise = uploadAndDiagnose(formData);
-      
+
       // Simulate AI progress
       await simulateProgress(2, 50, 95, 8000, 'AI diagnosing disease...');
       if (isCancelled) throw new Error('Cancelled');
-      
+
       // Wait for actual upload to complete
       await uploadPromise;
-      
+
       // Step 4: Complete (95-100%)
       setCurrentStep(3);
       setStatusMessage('Saving results...');
       await simulateProgress(3, 95, 100, 500, 'Almost done...');
-      
     } catch (error: any) {
       if (error?.message === 'Cancelled') {
         setIsSubmitting(false);
@@ -158,13 +182,13 @@ export default function ScanPage() {
         setCurrentStep(0);
         return;
       }
-      
+
       // Check if this is a redirect error (expected behavior)
       if (error?.message?.includes('NEXT_REDIRECT')) {
         // This is expected - redirect() throws to stop execution
         return;
       }
-      
+
       // Only show alert for actual errors
       console.error('Upload error:', error);
       alert('Failed to diagnose image. Please try again.');
@@ -188,10 +212,59 @@ export default function ScanPage() {
     setIsCancelled(false);
   };
 
+  // Hub capture handlers
+  const handleHubCaptureStart = () => {
+    setIsHubCapturing(true);
+    setHubError(null);
+    setCurrentStep(0);
+    setProgress(0);
+    setStatusMessage('Capturing image from Hub...');
+  };
+
+  const handleHubCaptureSuccess = (scanId: string) => {
+    setCurrentStep(2);
+    setProgress(100);
+    setStatusMessage('Complete!');
+    setIsHubCapturing(false);
+    router.push(`/result/${scanId}`);
+  };
+
+  const handleHubCaptureError = (message: string) => {
+    setIsHubCapturing(false);
+    setHubError(message);
+    setProgress(0);
+    setCurrentStep(0);
+  };
+
+  const handleHubStreamError = (message: string) => {
+    setHubError(message);
+  };
+
+  const hubSteps: Step[] = [
+    {
+      label: 'Capturing',
+      status: currentStep > 0 ? 'complete' : currentStep === 0 ? 'active' : 'pending',
+    },
+    {
+      label: 'Diagnosing',
+      status: currentStep > 1 ? 'complete' : currentStep === 1 ? 'active' : 'pending',
+    },
+    { label: 'Complete', status: currentStep === 2 ? 'complete' : 'pending' },
+  ];
+
   const steps: Step[] = [
-    { label: 'Upload', status: currentStep > 0 ? 'complete' : currentStep === 0 ? 'active' : 'pending' },
-    { label: 'Process', status: currentStep > 1 ? 'complete' : currentStep === 1 ? 'active' : 'pending' },
-    { label: 'AI Analysis', status: currentStep > 2 ? 'complete' : currentStep === 2 ? 'active' : 'pending' },
+    {
+      label: 'Upload',
+      status: currentStep > 0 ? 'complete' : currentStep === 0 ? 'active' : 'pending',
+    },
+    {
+      label: 'Process',
+      status: currentStep > 1 ? 'complete' : currentStep === 1 ? 'active' : 'pending',
+    },
+    {
+      label: 'AI Analysis',
+      status: currentStep > 2 ? 'complete' : currentStep === 2 ? 'active' : 'pending',
+    },
     { label: 'Complete', status: currentStep === 3 ? 'complete' : 'pending' },
   ];
 
@@ -208,7 +281,7 @@ export default function ScanPage() {
             isSubmitting={isSubmitting}
           />
         </div>
-        
+
         {/* Loading Overlay */}
         {isSubmitting && (
           <LoadingOverlay
@@ -223,6 +296,10 @@ export default function ScanPage() {
         )}
       </>
     );
+  }
+
+  if (isLoading) {
+    return null;
   }
 
   return (
@@ -240,8 +317,18 @@ export default function ScanPage() {
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm flex-shrink-0">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
                 </svg>
               </div>
               <h1 className="text-3xl sm:text-2xl font-bold truncate">Scan Rice Leaf</h1>
@@ -249,15 +336,57 @@ export default function ScanPage() {
           </div>
           <div className="flex items-start gap-3">
             <div className="w-[42px] flex-shrink-0"></div>
-            <p className="text-sm text-green-100 flex-1">Position leaf inside the frame and capture</p>
+            <p className="text-sm text-green-100 flex-1">
+              Position leaf inside the frame and capture
+            </p>
           </div>
+          {isHubAvailable && (
+            <div className="flex items-start gap-3 mt-3">
+              <div className="w-[42px] flex-shrink-0"></div>
+              <SourceToggle source={source} onSourceChange={setSource} />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Content Area - Camera */}
+      {/* Hub error message */}
+      {hubError && source === 'hub' && (
+        <div className="px-5 py-2 bg-red-600/90 text-white text-sm text-center">{hubError}</div>
+      )}
+
+      {/* Content Area */}
       <div className="flex-1 relative overflow-hidden pb-20">
-        <CameraCapture onCapture={handleImageCapture} onUpload={handleImageUpload} />
+        {source === 'hub' && isHubAvailable && tunnelUrl ? (
+          <div className="flex flex-col h-full">
+            <div className="flex-1 relative overflow-hidden">
+              <HubStream tunnelUrl={tunnelUrl} onError={handleHubStreamError} />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 pb-8 flex justify-center">
+              <HubCaptureButton
+                tunnelUrl={tunnelUrl}
+                onCaptureStart={handleHubCaptureStart}
+                onCaptureSuccess={handleHubCaptureSuccess}
+                onCaptureError={handleHubCaptureError}
+                disabled={isHubCapturing}
+              />
+            </div>
+          </div>
+        ) : (
+          <CameraCapture onCapture={handleImageCapture} onUpload={handleImageUpload} />
+        )}
       </div>
+
+      {/* Hub Capture Loading Overlay */}
+      {isHubCapturing && (
+        <LoadingOverlay
+          steps={hubSteps}
+          currentStep={currentStep}
+          percentage={progress}
+          message={statusMessage}
+          estimatedTime="10-30 seconds remaining"
+          showCancel={false}
+        />
+      )}
     </div>
   );
 }

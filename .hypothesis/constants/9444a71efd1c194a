@@ -1,0 +1,4 @@
+# file: C:\Users\pulid\Documents\PalAI\edge_hub\app.py
+# hypothesis_version: 6.151.9
+
+[b'\r\n', b'--frame\r\nContent-Type: image/jpeg\r\n\r\n', 0.05, 200, 480, 640, 1080, 1920, '/health', '/stream', 'JPEG', 'RGB888', 'camera', 'format', 'ok', 'ready', 'size', 'status']
