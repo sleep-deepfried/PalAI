@@ -22,26 +22,27 @@ export const TreatmentStepSchema = z.object({
 
 export const DiagnoseOutputSchema = z.object({
   label: LabelSchema,
-  confidence: z.number().min(0).max(1),
+  confidence: z.number(),
   severity: SeveritySchema,
   explanationEn: z.string(),
   explanationTl: z.string(),
   cautions: z.array(z.string()),
   preventionSteps: z.array(TreatmentStepSchema).optional(),
   treatmentSteps: z.array(TreatmentStepSchema).optional(),
-  sources: z.array(z.object({
-    title: z.string(),
-    url: z.string().url(),
-  })).optional(),
+  sources: z
+    .array(
+      z.object({
+        title: z.string(),
+        url: z.string().url(),
+      })
+    )
+    .optional(),
 });
 
-export function validateAndClampDiagnoseOutput(
-  raw: unknown
-): DiagnoseOutput {
+export function validateAndClampDiagnoseOutput(raw: unknown): DiagnoseOutput {
   const parsed = DiagnoseOutputSchema.parse(raw);
   return {
     ...parsed,
     confidence: Math.max(0, Math.min(1, parsed.confidence)),
   };
 }
-

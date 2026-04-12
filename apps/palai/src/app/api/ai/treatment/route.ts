@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,7 +19,50 @@ export async function POST(req: NextRequest) {
     console.log('Using Gemini API for treatment guide');
     const modelName = process.env.GEMINI_TREATMENT_MODEL || 'gemini-2.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: modelName });
+
+    const stepSchema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        step: { type: SchemaType.NUMBER },
+        titleEn: { type: SchemaType.STRING },
+        titleTl: { type: SchemaType.STRING },
+        descriptionEn: { type: SchemaType.STRING },
+        descriptionTl: { type: SchemaType.STRING },
+      },
+      required: ['step', 'titleEn', 'titleTl', 'descriptionEn', 'descriptionTl'] as const,
+    };
+
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            preventionSteps: {
+              type: SchemaType.ARRAY,
+              items: stepSchema,
+            },
+            treatmentSteps: {
+              type: SchemaType.ARRAY,
+              items: stepSchema,
+            },
+            sources: {
+              type: SchemaType.ARRAY,
+              items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  title: { type: SchemaType.STRING },
+                  url: { type: SchemaType.STRING },
+                },
+                required: ['title', 'url'] as const,
+              },
+            },
+          },
+          required: ['preventionSteps', 'treatmentSteps', 'sources'] as const,
+        },
+      },
+    });
 
     const diseaseNames: Record<string, string> = {
       HEALTHY: 'Healthy Rice',
@@ -78,18 +121,7 @@ ${disease === 'HEALTHY' ? '- For healthy plants, focus only on prevention/mainte
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    let text = response.text();
-
-    // Remove markdown code blocks if present
-    if (text.includes('```json')) {
-      const match = text.match(/```json\n([\s\S]*?)\n```/);
-      text = match ? match[1] : text;
-    } else if (text.includes('```')) {
-      const match = text.match(/```\n([\s\S]*?)\n```/);
-      text = match ? match[1] : text;
-    }
-
-    const json = JSON.parse(text);
+    const json = JSON.parse(response.text());
 
     return NextResponse.json(json);
   } catch (error: any) {

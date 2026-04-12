@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { validateAndClampDiagnoseOutput } from '@palai/ml';
 
 const SYSTEM_PROMPT = `You are PalAI, an assistant for Filipino rice farmers.
 
 Analyze the rice leaf photo and return STRICT JSON ONLY with keys:
-- label: one of [HEALTHY, BACTERIAL_LEAF_BLIGHT, BROWN_SPOT, SHEATH_BLIGHT, TUNGRO, BLAST]
+- label: one of [HEALTHY, BROWN_SPOT, SHEATH_BLIGHT, TUNGRO, BLAST]
 - confidence: number 0..1
 - severity: one of [LOW, MODERATE, HIGH]
 - explanationEn: short, farmer-friendly English
@@ -36,7 +36,48 @@ export async function POST(request: NextRequest) {
 
     const modelName = process.env.GEMINI_DIAGNOSE_MODEL || 'gemini-2.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: modelName });
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      generationConfig: {
+        temperature: 0.7,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            label: {
+              type: SchemaType.STRING,
+              enum: [
+                'HEALTHY',
+                'BACTERIAL_LEAF_BLIGHT',
+                'BROWN_SPOT',
+                'SHEATH_BLIGHT',
+                'TUNGRO',
+                'BLAST',
+              ],
+            },
+            confidence: { type: SchemaType.NUMBER },
+            severity: {
+              type: SchemaType.STRING,
+              enum: ['LOW', 'MODERATE', 'HIGH'],
+            },
+            explanationEn: { type: SchemaType.STRING },
+            explanationTl: { type: SchemaType.STRING },
+            cautions: {
+              type: SchemaType.ARRAY,
+              items: { type: SchemaType.STRING },
+            },
+          },
+          required: [
+            'label',
+            'confidence',
+            'severity',
+            'explanationEn',
+            'explanationTl',
+            'cautions',
+          ],
+        },
+      },
+    });
 
     const prompt = `${SYSTEM_PROMPT}\n\nLocale: ${locale || 'en'}\n${fieldNotes ? `Field notes: ${fieldNotes}` : ''}`;
 
@@ -45,9 +86,7 @@ export async function POST(request: NextRequest) {
         {
           role: 'user',
           parts: [
-            {
-              text: prompt,
-            },
+            { text: prompt },
             {
               inlineData: {
                 data: imageBase64,
@@ -57,24 +96,10 @@ export async function POST(request: NextRequest) {
           ],
         },
       ],
-      generationConfig: {
-        temperature: 0.7,
-      },
     });
 
     const response = await result.response;
-    let text = response.text();
-
-    // Remove markdown code blocks if present
-    if (text.includes('```json')) {
-      const match = text.match(/```json\n([\s\S]*?)\n```/);
-      text = match ? match[1] : text;
-    } else if (text.includes('```')) {
-      const match = text.match(/```\n([\s\S]*?)\n```/);
-      text = match ? match[1] : text;
-    }
-
-    const json = JSON.parse(text);
+    const json = JSON.parse(response.text());
     const validated = validateAndClampDiagnoseOutput(json);
 
     return NextResponse.json(validated);

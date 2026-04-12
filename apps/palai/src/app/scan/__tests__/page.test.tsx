@@ -18,6 +18,10 @@ vi.mock('next/navigation', () => ({
   redirect: (...args: any[]) => mockRedirect(...args),
 }));
 
+vi.mock('next-auth/react', () => ({
+  useSession: () => ({ data: null, status: 'authenticated' }),
+}));
+
 vi.mock('@/components/scan/CameraCapture', () => ({
   CameraCapture: (props: any) => <div data-testid="camera-capture" />,
 }));
@@ -65,6 +69,42 @@ vi.mock('@/components/ui/MultiStepProgress', () => ({
 
 vi.mock('../../actions/scan', () => ({
   uploadAndDiagnose: vi.fn(),
+}));
+
+// Mock new live diagnosis dependencies
+const mockStartSession = vi.fn();
+const mockEndSession = vi.fn();
+
+vi.mock('@/hooks/useLiveSession', () => ({
+  useLiveSession: () => ({
+    status: 'idle' as const,
+    timeRemaining: 120,
+    isWarning: false,
+    transcription: '',
+    isSpeaking: false,
+    error: null,
+    startSession: mockStartSession,
+    endSession: mockEndSession,
+  }),
+}));
+
+vi.mock('@/lib/live-compatibility', () => ({
+  checkLiveCompatibility: () => ({ supported: false, missing: ['AudioContext'] }),
+}));
+
+vi.mock('@/components/scan/ModeSelector', () => ({
+  ModeSelector: (props: any) => (
+    <div
+      data-testid="mode-selector"
+      data-mode={props.mode}
+      data-live-supported={props.liveSupported}
+      onClick={() => props.onModeChange(props.mode === 'photo' ? 'live' : 'photo')}
+    />
+  ),
+}));
+
+vi.mock('@/components/scan/LiveSessionUI', () => ({
+  LiveSessionUI: (props: any) => <div data-testid="live-session-ui" />,
 }));
 
 // Mock lucide-react icons used in the page

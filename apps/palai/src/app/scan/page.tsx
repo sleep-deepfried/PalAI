@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { CameraCapture } from '@/components/scan/CameraCapture';
@@ -8,11 +8,17 @@ import { ImagePreview } from '@/components/scan/ImagePreview';
 import { SourceToggle } from '@/components/scan/SourceToggle';
 import { HubStream } from '@/components/scan/HubStream';
 import { HubCaptureButton } from '@/components/scan/HubCaptureButton';
+import { ModeSelector } from '@/components/scan/ModeSelector';
+import { LiveSessionUI } from '@/components/scan/LiveSessionUI';
 import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
 import { Step } from '@/components/ui/MultiStepProgress';
 import { uploadAndDiagnose } from '../actions/scan';
 import { redirect } from 'next/navigation';
 import { Maximize2, Minimize2 } from 'lucide-react';
+import { checkLiveCompatibility } from '@/lib/live-compatibility';
+import { useLiveSession } from '@/hooks/useLiveSession';
+
+const SCAN_MODE_KEY = 'palai-scan-mode';
 
 export default function ScanPage() {
   const router = useRouter();
@@ -31,12 +37,50 @@ export default function ScanPage() {
   const [hubError, setHubError] = useState<string | null>(null);
   const [tunnelUrl, setTunnelUrl] = useState<string | null>(null);
   const [isHubAvailable, setIsHubAvailable] = useState(false);
+  const [mode, setMode] = useState<'photo' | 'live'>('photo');
+  const [liveSupported, setLiveSupported] = useState(false);
+  const liveVideoRef = useRef<HTMLVideoElement>(null);
+
+  const handleDiagnosisComplete = useCallback(
+    (scanId: string) => {
+      router.push(`/result/${scanId}`);
+    },
+    [router]
+  );
+
+  const handleFallback = useCallback(() => {
+    setMode('photo');
+  }, []);
+
+  const liveSession = useLiveSession({
+    videoRef: liveVideoRef,
+    onDiagnosisComplete: handleDiagnosisComplete,
+    onFallback: handleFallback,
+  });
 
   // Resolve tunnel URL on client only to avoid SSR/client hydration mismatch
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_PI_TUNNEL_URL ?? null;
     setTunnelUrl(url);
     setIsHubAvailable(!!url && url.trim().length > 0);
+  }, []);
+
+  // Initialize mode from localStorage and check live compatibility
+  useEffect(() => {
+    const compat = checkLiveCompatibility();
+    setLiveSupported(compat.supported);
+
+    try {
+      const stored = localStorage.getItem(SCAN_MODE_KEY);
+      if (stored === 'live' && compat.supported) {
+        setMode('live');
+      } else {
+        setMode('photo');
+      }
+    } catch {
+      // localStorage unavailable
+      setMode('photo');
+    }
   }, []);
 
   // Request fullscreen on mount (requires user interaction to work)
@@ -346,6 +390,10 @@ export default function ScanPage() {
               <SourceToggle source={source} onSourceChange={setSource} />
             </div>
           )}
+          <div className="flex items-start gap-3 mt-3">
+            <div className="w-[42px] flex-shrink-0"></div>
+            <ModeSelector mode={mode} onModeChange={setMode} liveSupported={liveSupported} />
+          </div>
         </div>
       </div>
 
@@ -355,8 +403,23 @@ export default function ScanPage() {
       )}
 
       {/* Content Area */}
-      <div className="flex-1 relative overflow-hidden pb-20">
-        {source === 'hub' && isHubAvailable && tunnelUrl ? (
+      <div className={`flex-1 relative overflow-hidden ${mode === 'live' ? '' : 'pb-20'}`}>
+        {mode === 'live' ? (
+          <LiveSessionUI
+            status={liveSession.status}
+            timeRemaining={liveSession.timeRemaining}
+            transcription={liveSession.transcription}
+            isSpeaking={liveSession.isSpeaking}
+            isWarning={liveSession.isWarning}
+            error={liveSession.error}
+            onStart={liveSession.startSession}
+            onEnd={liveSession.endSession}
+            onFallback={handleFallback}
+            onToggleCamera={liveSession.toggleCamera}
+            hasMultipleCameras={liveSession.hasMultipleCameras}
+            videoRef={liveVideoRef}
+          />
+        ) : source === 'hub' && isHubAvailable && tunnelUrl ? (
           <div className="flex flex-col h-full">
             <div className="flex-1 relative overflow-hidden">
               <HubStream tunnelUrl={tunnelUrl} onError={handleHubStreamError} />
