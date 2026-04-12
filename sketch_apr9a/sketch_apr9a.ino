@@ -1,3 +1,5 @@
+// NPK-only test sketch. For pump + Supabase, use ../firmware/esp32_palai_iot/
+// (relay uses GPIO 4 there; RE/DE moved to GPIO 5.)
 #define RE_DE_PIN 4
 
 // FIXED: Start register changed from 0x0000 to 0x001E
