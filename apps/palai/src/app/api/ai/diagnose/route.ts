@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
           properties: {
             label: {
               type: SchemaType.STRING,
+              format: 'enum',
               enum: [
                 'HEALTHY',
                 'BACTERIAL_LEAF_BLIGHT',
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
             confidence: { type: SchemaType.NUMBER },
             severity: {
               type: SchemaType.STRING,
+              format: 'enum',
               enum: ['LOW', 'MODERATE', 'HIGH'],
             },
             explanationEn: { type: SchemaType.STRING },
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    const response = await result.response;
+    const response = result.response;
     const json = JSON.parse(response.text());
     const validated = validateAndClampDiagnoseOutput(json);
 
