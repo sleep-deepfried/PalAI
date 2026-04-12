@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect, type RefObject } from 'react';
 import { useSession } from 'next-auth/react';
 import { GoogleGenAI, Modality } from '@google/genai';
-import { checkLiveCompatibility, checkBandwidth } from '@/lib/live-compatibility';
+import { checkLiveCompatibility } from '@/lib/live-compatibility';
 import { resampleAndEncode, arrayBufferToBase64 } from '@/lib/audio-utils';
 import { AudioPlayer } from '@/lib/audio-player';
 import { startVideoCapture } from '@/lib/video-streamer';
@@ -147,7 +147,10 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   // ---- Fetch ephemeral token ----
 
   const fetchEphemeralToken = async (): Promise<string> => {
-    const res = await fetch('/api/ai/live-token', { method: 'POST' });
+    const res = await fetch('/api/ai/live-token', {
+      method: 'POST',
+      credentials: 'include',
+    });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || 'Failed to fetch ephemeral token');
@@ -400,7 +403,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       setIsWarning(false);
       setTimeRemaining(sessionDuration);
 
-      // 1. Compatibility check
+      // 1. Compatibility check (hard requirements only)
       const compat = checkLiveCompatibility();
       if (!compat.supported) {
         throw new Error(
@@ -408,18 +411,10 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
         );
       }
 
-      // 2. Bandwidth check
-      const bandwidth = await checkBandwidth();
-      if (!bandwidth.sufficient) {
-        throw new Error(
-          `Your connection may be too slow for live diagnosis (${bandwidth.estimatedKbps} kbps). Consider switching to Photo Capture mode.`
-        );
-      }
-
-      // 3. Fetch ephemeral token
+      // 2. Fetch ephemeral token (no bandwidth pre-check — manifest probe was latency-dominated and blocked valid networks)
       const token = await fetchEphemeralToken();
 
-      // 4. Request camera + mic access
+      // 3. Request camera + mic access
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
         audio: true,
@@ -437,11 +432,11 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
         videoRef.current.srcObject = stream;
       }
 
-      // 5. Create AudioPlayer for Gemini output
+      // 4. Create AudioPlayer for Gemini output
       const audioPlayer = new AudioPlayer(24000);
       audioPlayerRef.current = audioPlayer;
 
-      // 6. Open WebSocket via ai.live.connect() (v1alpha required for ephemeral tokens)
+      // 5. Open WebSocket via ai.live.connect() (v1alpha required for ephemeral tokens)
       const ai = new GoogleGenAI({
         apiKey: token,
         httpOptions: { apiVersion: 'v1alpha' },
@@ -450,6 +445,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       const session = await ai.live.connect({
         model: LIVE_MODEL,
         config: {
+          sessionResumption: {},
           responseModalities: [Modality.AUDIO],
           speechConfig: {
             languageCode: 'en-US',
@@ -468,15 +464,15 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
           },
           onerror: (err: unknown) => {
             console.error('Live session error:', err);
-            if (statusRef.current !== 'extracting') {
-              cleanup();
-              setError('Connection error. Please retry or switch to Photo Capture.');
-              updateStatus('error');
-            }
+            if (statusRef.current === 'extracting') return;
+            // Ignore errors during handshake; `live.connect()` will still reject if the socket never opens
+            if (statusRef.current !== 'active') return;
+            cleanup();
+            setError('Connection error. Please retry or switch to Photo Capture.');
+            updateStatus('error');
           },
           onclose: () => {
             if (!endingRef.current && statusRef.current === 'active') {
-              // Unexpected close
               cleanup();
               setError('Connection lost. Please retry or switch to Photo Capture.');
               updateStatus('error');
@@ -487,7 +483,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
 
       sessionRef.current = session;
 
-      // 7. Start video capture (1fps)
+      // 6. Start video capture (1fps)
       if (videoRef.current) {
         const stopVideo = startVideoCapture(
           videoRef.current,
@@ -503,13 +499,13 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
         stopVideoCaptureRef.current = stopVideo;
       }
 
-      // 8. Start audio capture
+      // 7. Start audio capture
       await startAudioCapture(stream, session);
 
-      // 9. Start session timer
+      // 8. Start session timer
       startTimer(session);
 
-      // 10. Send initial greeting prompt so Gemini speaks first
+      // 9. Send initial greeting prompt so Gemini speaks first
       try {
         session.sendClientContent({
           turns: [

@@ -28,6 +28,7 @@ export async function POST() {
         liveConnectConstraints: {
           model: LIVE_MODEL,
           config: {
+            sessionResumption: {},
             responseModalities: [Modality.AUDIO],
           },
         },
