@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 interface TourStep {
@@ -39,12 +40,12 @@ const tourSteps: TourStep[] = [
 ];
 
 export function OnboardingTour() {
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { update } = useSession();
   const [step, setStep] = useState(0);
   const [show, setShow] = useState(false);
   const [rect, setRect] = useState<DOMRect | null>(null);
-
-  const isOnboarded = (session?.user as { isOnboarded?: boolean } | undefined)?.isOnboarded;
+  const hasSyncedJwtRef = useRef(false);
 
   const measureElement = useCallback(() => {
     const currentStep = tourSteps[step];
@@ -71,14 +72,20 @@ export function OnboardingTour() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('tour') === '1' || isOnboarded === false) {
-      const timer = setTimeout(() => {
-        setShow(true);
-        scrollAndMeasure();
-      }, 600);
-      return () => clearTimeout(timer);
+    const wantsTour = params.get('tour') === '1';
+    if (wantsTour && !hasSyncedJwtRef.current) {
+      hasSyncedJwtRef.current = true;
+      void update();
     }
-  }, [isOnboarded, scrollAndMeasure]);
+    if (!wantsTour) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setShow(true);
+      scrollAndMeasure();
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [scrollAndMeasure, update]);
 
   useEffect(() => {
     if (!show) return;
@@ -92,17 +99,21 @@ export function OnboardingTour() {
     return () => window.removeEventListener('resize', handler);
   }, [show, measureElement]);
 
+  const dismissTour = () => {
+    setShow(false);
+    router.replace('/');
+  };
+
   const handleNext = () => {
-    // Hide highlight before transitioning
     setRect(null);
     if (step < tourSteps.length - 1) {
       setStep(step + 1);
     } else {
-      setShow(false);
+      dismissTour();
     }
   };
 
-  const handleSkip = () => setShow(false);
+  const handleSkip = () => dismissTour();
 
   if (!show || !rect) return null;
 
