@@ -6,7 +6,7 @@ import { validateAndClampDiagnoseOutput } from './schema';
 export async function diagnoseWithFailover(
   input: DiagnoseInput,
   providers: {
-    nextApi?: { baseUrl?: string };
+    nextApi?: { baseUrl?: string; headers?: Record<string, string> };
     local?: boolean;
   }
 ): Promise<DiagnoseOutput> {
@@ -15,7 +15,7 @@ export async function diagnoseWithFailover(
   // Try Next API first
   if (nextApi) {
     try {
-      const provider = new NextApiProvider(nextApi.baseUrl);
+      const provider = new NextApiProvider(nextApi.baseUrl, nextApi.headers);
       const result = await provider.diagnose(input);
       return validateAndClampDiagnoseOutput(result);
     } catch (error) {

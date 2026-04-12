@@ -4,8 +4,11 @@ import { validateAndClampDiagnoseOutput } from '../schema';
 export class NextApiProvider implements PalAIProvider {
   private baseUrl: string;
 
-  constructor(baseUrl: string = '') {
-    this.baseUrl = baseUrl;
+  private extraHeaders: Record<string, string>;
+
+  constructor(baseUrl: string = '', extraHeaders: Record<string, string> = {}) {
+    this.baseUrl = (baseUrl ?? '').replace(/\/$/, '');
+    this.extraHeaders = extraHeaders;
   }
 
   async diagnose(input: DiagnoseInput): Promise<DiagnoseOutput> {
@@ -17,6 +20,7 @@ export class NextApiProvider implements PalAIProvider {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...this.extraHeaders,
       },
       body: JSON.stringify({
         imageBase64,
