@@ -90,6 +90,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   const accumulatedTextRef = useRef('');
   const currentCameraIndexRef = useRef(0);
   const availableCamerasRef = useRef<MediaDeviceInfo[]>([]);
+  /** True while we are intentionally closing the Live WS (avoids spurious "Connection lost" from onclose). */
+  const closingLiveSessionRef = useRef(false);
 
   // ---- Helpers ----
 
@@ -99,6 +101,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   }, []);
 
   const cleanup = useCallback(() => {
+    closingLiveSessionRef.current = true;
     // Stop timer
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -135,6 +138,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
     }
     finalizationSentRef.current = false;
     endingRef.current = false;
+    closingLiveSessionRef.current = false;
   }, []);
 
   // Cleanup on unmount
@@ -164,6 +168,9 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   const startAudioCapture = async (stream: MediaStream, session: any) => {
     const audioCtx = new AudioContext();
     audioContextRef.current = audioCtx;
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
 
     await audioCtx.audioWorklet.addModule('/pcm-processor.js');
 
@@ -445,7 +452,6 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       const session = await ai.live.connect({
         model: LIVE_MODEL,
         config: {
-          sessionResumption: {},
           responseModalities: [Modality.AUDIO],
           speechConfig: {
             languageCode: 'en-US',
@@ -464,6 +470,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
           },
           onerror: (err: unknown) => {
             console.error('Live session error:', err);
+            if (closingLiveSessionRef.current) return;
             if (statusRef.current === 'extracting') return;
             // Ignore errors during handshake; `live.connect()` will still reject if the socket never opens
             if (statusRef.current !== 'active') return;
@@ -471,12 +478,15 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
             setError('Connection error. Please retry or switch to Photo Capture.');
             updateStatus('error');
           },
-          onclose: () => {
-            if (!endingRef.current && statusRef.current === 'active') {
-              cleanup();
-              setError('Connection lost. Please retry or switch to Photo Capture.');
-              updateStatus('error');
-            }
+          onclose: (event?: { code?: number; reason?: string }) => {
+            if (closingLiveSessionRef.current) return;
+            if (endingRef.current) return;
+            if (statusRef.current !== 'active') return;
+            const code = event?.code;
+            if (code === 1000) return;
+            cleanup();
+            setError('Connection lost. Please retry or switch to Photo Capture.');
+            updateStatus('error');
           },
         },
       });
