@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { extractDiagnosis } from './diagnosis-extractor';
 
 const VALID_DIAGNOSIS = {
-  label: 'BLAST',
+  label: 'RICE_BLAST',
   confidence: 0.87,
   severity: 'HIGH',
   explanationEn: 'Signs of rice blast detected on the leaf.',
@@ -36,7 +36,7 @@ describe('extractDiagnosis', () => {
 
     expect(result.success).toBe(true);
     expect(result.diagnosis).toBeDefined();
-    expect(result.diagnosis!.label).toBe('BLAST');
+    expect(result.diagnosis!.label).toBe('RICE_BLAST');
     expect(result.diagnosis!.confidence).toBe(0.87);
     expect(result.diagnosis!.severity).toBe('HIGH');
     expect(vi.mocked(send)).toHaveBeenCalledOnce();
@@ -50,7 +50,7 @@ describe('extractDiagnosis', () => {
     const result = await extractDiagnosis(send, wait);
 
     expect(result.success).toBe(true);
-    expect(result.diagnosis!.label).toBe('BLAST');
+    expect(result.diagnosis!.label).toBe('RICE_BLAST');
   });
 
   it('extracts JSON embedded in surrounding text', async () => {
@@ -62,7 +62,7 @@ describe('extractDiagnosis', () => {
     const result = await extractDiagnosis(send, wait);
 
     expect(result.success).toBe(true);
-    expect(result.diagnosis!.label).toBe('BLAST');
+    expect(result.diagnosis!.label).toBe('RICE_BLAST');
   });
 
   it('retries once on invalid JSON and succeeds on second attempt', async () => {

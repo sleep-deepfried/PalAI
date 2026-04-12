@@ -13,13 +13,11 @@ interface DiseaseDonutProps {
   data: DiseaseData[];
 }
 
-const COLORS = {
+const COLORS: Record<string, string> = {
   HEALTHY: '#10b981',
-  BACTERIAL_LEAF_BLIGHT: '#ef4444',
-  BROWN_SPOT: '#f59e0b',
   SHEATH_BLIGHT: '#8b5cf6',
   TUNGRO: '#ec4899',
-  BLAST: '#f97316',
+  RICE_BLAST: '#f97316',
 };
 
 export function DiseaseDonut({ data }: DiseaseDonutProps) {
@@ -46,7 +44,7 @@ export function DiseaseDonut({ data }: DiseaseDonutProps) {
           >
             {chartData.map((entry, index) => {
               const originalLabel = data[index].label;
-              const color = COLORS[originalLabel as keyof typeof COLORS] || '#6b7280';
+              const color = COLORS[originalLabel] ?? '#6b7280';
               return <Cell key={`cell-${index}`} fill={color} />;
             })}
           </Pie>

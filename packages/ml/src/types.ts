@@ -1,10 +1,4 @@
-export type Label =
-  | 'HEALTHY'
-  | 'BACTERIAL_LEAF_BLIGHT'
-  | 'BROWN_SPOT'
-  | 'SHEATH_BLIGHT'
-  | 'TUNGRO'
-  | 'BLAST';
+export type Label = 'HEALTHY' | 'SHEATH_BLIGHT' | 'TUNGRO' | 'RICE_BLAST';
 
 export type Severity = 'LOW' | 'MODERATE' | 'HIGH';
 

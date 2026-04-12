@@ -5,7 +5,7 @@ import { validateAndClampDiagnoseOutput } from '@palai/ml';
 const SYSTEM_PROMPT = `You are PalAI, an assistant for Filipino rice farmers.
 
 Analyze the rice leaf photo and return STRICT JSON ONLY with keys:
-- label: one of [HEALTHY, BROWN_SPOT, SHEATH_BLIGHT, TUNGRO, BLAST]
+- label: one of [HEALTHY, SHEATH_BLIGHT, TUNGRO, RICE_BLAST]
 - confidence: number 0..1
 - severity: one of [LOW, MODERATE, HIGH]
 - explanationEn: short, farmer-friendly English
@@ -47,14 +47,7 @@ export async function POST(request: NextRequest) {
             label: {
               type: SchemaType.STRING,
               format: 'enum',
-              enum: [
-                'HEALTHY',
-                'BACTERIAL_LEAF_BLIGHT',
-                'BROWN_SPOT',
-                'SHEATH_BLIGHT',
-                'TUNGRO',
-                'BLAST',
-              ],
+              enum: ['HEALTHY', 'SHEATH_BLIGHT', 'TUNGRO', 'RICE_BLAST'],
             },
             confidence: { type: SchemaType.NUMBER },
             severity: {

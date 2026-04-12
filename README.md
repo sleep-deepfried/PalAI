@@ -40,11 +40,9 @@
 
 ### Disease Classifications
 - `HEALTHY` - No disease detected
-- `BACTERIAL_LEAF_BLIGHT` - Bacterial infection
-- `BROWN_SPOT` - Fungal brown spot
 - `SHEATH_BLIGHT` - Sheath blight disease
 - `TUNGRO` - Tungro virus
-- `BLAST` - Rice blast disease
+- `RICE_BLAST` - Rice blast disease
 
 ---
 
@@ -350,7 +348,7 @@ Next API (Gemini) → Local Mock
 **Request:**
 ```json
 {
-  "disease": "BLAST",
+  "disease": "RICE_BLAST",
   "language": "en"
 }
 ```

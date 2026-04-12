@@ -8,14 +8,7 @@ export class LocalMockProvider implements PalAIProvider {
     const hashNum = parseInt(hash.substring(0, 8), 16);
 
     // Deterministic selection based on hash
-    const labels: Label[] = [
-      'HEALTHY',
-      'BACTERIAL_LEAF_BLIGHT',
-      'BROWN_SPOT',
-      'SHEATH_BLIGHT',
-      'TUNGRO',
-      'BLAST',
-    ];
+    const labels: Label[] = ['HEALTHY', 'SHEATH_BLIGHT', 'TUNGRO', 'RICE_BLAST'];
     const severities: Severity[] = ['LOW', 'MODERATE', 'HIGH'];
 
     const labelIndex = hashNum % labels.length;
@@ -31,14 +24,6 @@ export class LocalMockProvider implements PalAIProvider {
         en: 'The rice leaf appears healthy with no visible disease symptoms.',
         tl: 'Mukhang healthy ang dahon. Walang signs ng sakit.',
       },
-      BACTERIAL_LEAF_BLIGHT: {
-        en: 'Signs of bacterial leaf blight detected. Check water management and avoid overhead irrigation.',
-        tl: 'May signs ng Bacterial Leaf Blight. I-check ang water management. Iwasan overhead irrigation.',
-      },
-      BROWN_SPOT: {
-        en: 'Brown spot disease detected. Consider fungicide treatment if symptoms worsen.',
-        tl: 'May Brown Spot. Kung lumalala, mag-consult sa agri technician para sa fungicide.',
-      },
       SHEATH_BLIGHT: {
         en: 'Sheath blight symptoms present. Monitor closely and maintain proper spacing.',
         tl: 'May Sheath Blight. I-monitor closely. I-maintain proper spacing.',
@@ -47,7 +32,7 @@ export class LocalMockProvider implements PalAIProvider {
         en: 'Tungro virus detected. Remove infected plants and control insect vectors.',
         tl: 'May Tungro. I-remove ang infected plants. I-control ang insect vectors.',
       },
-      BLAST: {
+      RICE_BLAST: {
         en: 'Rice blast disease detected. Apply fungicide and improve field drainage.',
         tl: 'May signs ng Blast. Mag-apply ng fungicide. I-improve ang field drainage.',
       },
@@ -65,110 +50,6 @@ export class LocalMockProvider implements PalAIProvider {
         prevention: [],
         treatment: [],
         sources: [],
-      },
-      BACTERIAL_LEAF_BLIGHT: {
-        prevention: [
-          {
-            step: 1,
-            titleEn: 'Use Resistant Varieties',
-            titleTl: 'Gumamit ng Resistant na Variety',
-            descriptionEn: 'Plant rice varieties that are resistant to bacterial leaf blight.',
-            descriptionTl: 'Magtanim ng variety na resistant sa bacterial leaf blight.',
-          },
-          {
-            step: 2,
-            titleEn: 'Balance Nitrogen Fertilizer',
-            titleTl: 'I-balance ang Nitrogen Fertilizer',
-            descriptionEn: 'Avoid excessive nitrogen fertilizer application, which makes plants more susceptible.',
-            descriptionTl: 'Iwasan ang sobrang nitrogen fertilizer dahil mas magiging madaling mahawahan ang tanim.',
-          },
-          {
-            step: 3,
-            titleEn: 'Proper Water Management',
-            titleTl: 'Tamang Water Management',
-            descriptionEn: 'Maintain shallow water level and avoid prolonged flooding.',
-            descriptionTl: 'Panatilihing mababaw ang tubig at iwasan ang matagal na baha.',
-          },
-        ],
-        treatment: [
-          {
-            step: 1,
-            titleEn: 'Remove Infected Leaves',
-            titleTl: 'Alisin ang May Sakit na Dahon',
-            descriptionEn: 'Cut and remove infected leaves to prevent spread.',
-            descriptionTl: 'Putulin at alisin ang mga dahon na may sakit para hindi kumalat.',
-          },
-          {
-            step: 2,
-            titleEn: 'Apply Copper-based Bactericide',
-            titleTl: 'Mag-apply ng Copper-based Bactericide',
-            descriptionEn: 'Spray copper hydroxide or copper oxychloride at recommended rates.',
-            descriptionTl: 'I-spray ang copper hydroxide o copper oxychloride ayon sa recommended dosage.',
-          },
-          {
-            step: 3,
-            titleEn: 'Improve Drainage',
-            titleTl: 'Pagbutihin ang Drainage',
-            descriptionEn: 'Ensure proper field drainage to reduce disease pressure.',
-            descriptionTl: 'Siguraduhing maayos ang drainage ng palayan para mabawasan ang sakit.',
-          },
-        ],
-        sources: [
-          { title: 'IRRI - Bacterial Leaf Blight Management', url: 'http://www.knowledgebank.irri.org/training/fact-sheets/pest-management/diseases/item/bacterial-blight' },
-          { title: 'PhilRice Disease Management Guide', url: 'https://www.philrice.gov.ph' },
-        ],
-      },
-      BROWN_SPOT: {
-        prevention: [
-          {
-            step: 1,
-            titleEn: 'Use Quality Seeds',
-            titleTl: 'Gumamit ng Quality Seeds',
-            descriptionEn: 'Use certified, disease-free seeds from reliable sources.',
-            descriptionTl: 'Gumamit ng certified, walang sakit na binhi mula sa mapagkakatiwalaang source.',
-          },
-          {
-            step: 2,
-            titleEn: 'Balanced Fertilization',
-            titleTl: 'Balanced na Fertilization',
-            descriptionEn: 'Apply balanced NPK fertilizer and avoid potassium deficiency.',
-            descriptionTl: 'Mag-apply ng balanced NPK fertilizer at iwasan ang kulang sa potassium.',
-          },
-          {
-            step: 3,
-            titleEn: 'Maintain Soil Health',
-            titleTl: 'Pangalagaan ang Kalusugan ng Lupa',
-            descriptionEn: 'Add organic matter to improve soil fertility and plant resistance.',
-            descriptionTl: 'Magdagdag ng organic matter para gumanda ang lupa at tumaas ang resistance ng tanim.',
-          },
-        ],
-        treatment: [
-          {
-            step: 1,
-            titleEn: 'Apply Fungicide',
-            titleTl: 'Mag-apply ng Fungicide',
-            descriptionEn: 'Use mancozeb or copper-based fungicides at first sign of infection.',
-            descriptionTl: 'Gumamit ng mancozeb o copper-based fungicide sa unang sign ng impeksyon.',
-          },
-          {
-            step: 2,
-            titleEn: 'Foliar Fertilization',
-            titleTl: 'Foliar Fertilization',
-            descriptionEn: 'Apply foliar fertilizer with potassium to strengthen plant resistance.',
-            descriptionTl: 'Mag-apply ng foliar fertilizer na may potassium para lumakas ang tanim.',
-          },
-          {
-            step: 3,
-            titleEn: 'Monitor Regularly',
-            titleTl: 'Regular na Pag-monitor',
-            descriptionEn: 'Check plants weekly and reapply treatment if symptoms persist.',
-            descriptionTl: 'I-check ang tanim weekly at ulit-ulitin ang treatment kung hindi nawala ang sintomas.',
-          },
-        ],
-        sources: [
-          { title: 'IRRI - Brown Spot Management', url: 'http://www.knowledgebank.irri.org/training/fact-sheets/pest-management/diseases/item/brown-spot' },
-          { title: 'Rice Knowledge Bank', url: 'http://www.knowledgebank.irri.org' },
-        ],
       },
       SHEATH_BLIGHT: {
         prevention: [
@@ -274,7 +155,7 @@ export class LocalMockProvider implements PalAIProvider {
           { title: 'PhilRice Tungro Management', url: 'https://www.philrice.gov.ph' },
         ],
       },
-      BLAST: {
+      RICE_BLAST: {
         prevention: [
           {
             step: 1,

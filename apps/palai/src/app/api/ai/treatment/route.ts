@@ -68,11 +68,9 @@ export async function POST(req: NextRequest) {
 
     const diseaseNames: Record<string, string> = {
       HEALTHY: 'Healthy Rice',
-      BACTERIAL_LEAF_BLIGHT: 'Bacterial Leaf Blight',
-      BROWN_SPOT: 'Brown Spot',
       SHEATH_BLIGHT: 'Sheath Blight',
       TUNGRO: 'Tungro Virus',
-      BLAST: 'Rice Blast',
+      RICE_BLAST: 'Rice Blast',
     };
 
     const diseaseName = diseaseNames[disease] || disease;

@@ -1,7 +1,7 @@
 import { validateAndClampDiagnoseOutput, type DiagnoseOutput } from '@palai/ml';
 
 export interface StructuredDiagnosis {
-  label: 'HEALTHY' | 'BACTERIAL_LEAF_BLIGHT' | 'BROWN_SPOT' | 'SHEATH_BLIGHT' | 'TUNGRO' | 'BLAST';
+  label: 'HEALTHY' | 'SHEATH_BLIGHT' | 'TUNGRO' | 'RICE_BLAST';
   confidence: number;
   severity: 'LOW' | 'MODERATE' | 'HIGH';
   explanationEn: string;
@@ -16,7 +16,7 @@ export interface ExtractDiagnosisResult {
 }
 
 const EXTRACTION_PROMPT =
-  'Based on our conversation about the rice leaves, provide your final diagnosis as a JSON object with these exact keys: label (one of HEALTHY, BACTERIAL_LEAF_BLIGHT, BROWN_SPOT, SHEATH_BLIGHT, TUNGRO, BLAST), confidence (0 to 1), severity (LOW, MODERATE, or HIGH), explanationEn (English), explanationTl (Tagalog), cautions (array of strings). Return ONLY the JSON, no other text.';
+  'Based on our conversation about the rice leaves, provide your final diagnosis as a JSON object with these exact keys: label (one of HEALTHY, SHEATH_BLIGHT, TUNGRO, RICE_BLAST), confidence (0 to 1), severity (LOW, MODERATE, or HIGH), explanationEn (English), explanationTl (Tagalog), cautions (array of strings). Return ONLY the JSON, no other text.';
 
 /**
  * Extracts a JSON block from a text response that may contain markdown

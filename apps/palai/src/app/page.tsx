@@ -8,7 +8,6 @@ import {
   Brain,
   CheckCircle,
   AlertTriangle,
-  Info,
   BarChart3,
   Droplets,
   Bug,
@@ -18,22 +17,13 @@ import { OnboardingTour } from '@/components/ui/OnboardingTour';
 
 const diseases = [
   {
-    id: 'BLAST',
-    name: 'Blast',
+    id: 'RICE_BLAST',
+    name: 'Rice Blast',
     nameTl: 'Blast',
     description: 'Diamond-shaped lesions on leaves',
     descriptionTl: 'Mga dahon na may hugis-brilyante na pinsala',
     severity: 'HIGH' as const,
     icon: AlertTriangle,
-  },
-  {
-    id: 'BROWN_SPOT',
-    name: 'Brown Spot',
-    nameTl: 'Kayumangging Batik',
-    description: 'Circular brown spots on leaves',
-    descriptionTl: 'Bilog na kayumangging batik sa dahon',
-    severity: 'MODERATE' as const,
-    icon: Info,
   },
   {
     id: 'SHEATH_BLIGHT',

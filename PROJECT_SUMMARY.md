@@ -44,9 +44,9 @@ palai-monorepo/                  # pnpm workspaces
 - Package Manager: pnpm workspaces
 - Deployment: Vercel
 
-## Disease Labels (6 classes)
+## Disease Labels (4 classes)
 
-HEALTHY, BACTERIAL_LEAF_BLIGHT, BROWN_SPOT, SHEATH_BLIGHT, TUNGRO, BLAST
+HEALTHY, SHEATH_BLIGHT, TUNGRO, RICE_BLAST
 
 ## Severity Levels
 
