@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType, type Schema } from '@google/generative-ai';
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const modelName = process.env.GEMINI_TREATMENT_MODEL || 'gemini-2.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    const stepSchema = {
+    const stepSchema: Schema = {
       type: SchemaType.OBJECT,
       properties: {
         step: { type: SchemaType.NUMBER },
@@ -29,7 +29,16 @@ export async function POST(req: NextRequest) {
         descriptionEn: { type: SchemaType.STRING },
         descriptionTl: { type: SchemaType.STRING },
       },
-      required: ['step', 'titleEn', 'titleTl', 'descriptionEn', 'descriptionTl'] as const,
+      required: ['step', 'titleEn', 'titleTl', 'descriptionEn', 'descriptionTl'],
+    };
+
+    const sourceSchema: Schema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        title: { type: SchemaType.STRING },
+        url: { type: SchemaType.STRING },
+      },
+      required: ['title', 'url'],
     };
 
     const model = genAI.getGenerativeModel({
@@ -49,17 +58,10 @@ export async function POST(req: NextRequest) {
             },
             sources: {
               type: SchemaType.ARRAY,
-              items: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  title: { type: SchemaType.STRING },
-                  url: { type: SchemaType.STRING },
-                },
-                required: ['title', 'url'] as const,
-              },
+              items: sourceSchema,
             },
           },
-          required: ['preventionSteps', 'treatmentSteps', 'sources'] as const,
+          required: ['preventionSteps', 'treatmentSteps', 'sources'],
         },
       },
     });
