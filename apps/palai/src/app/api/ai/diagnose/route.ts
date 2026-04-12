@@ -16,6 +16,14 @@ Analyze the rice leaf photo and return STRICT JSON ONLY with keys:
   - "Kung lumalala, mag-consult sa agri technician."
 - cautions: array of short strings (e.g., "Blurry image", "Strong glare")
 
+Label choice — use ONLY what is visible; do not guess field or weather:
+- RICE_BLAST (fungal): look for spindle- or diamond-shaped dead/necrotic spots on the leaf blade, often with a narrow brown border and lighter/ash center; lesions are discrete patches, not uniform yellowing of the whole leaf.
+- TUNGRO (viral): look for orange-yellow, yellow-green, or rusty mottling/streaking, often along veins or uneven patches without clear spindle-shaped blast lesions; stunted or twisted leaves in the frame favor Tungro. Do NOT label TUNGRO for generic uniform yellowing if spindle blast lesions are visible—choose RICE_BLAST.
+- SHEATH_BLIGHT: gray-green irregular water-soaked areas, often toward leaf base/sheath region; if the photo is mostly upper leaf with classic spindle blast spots, prefer RICE_BLAST.
+- HEALTHY: no credible disease signs.
+
+If Tungro vs blast is ambiguous (poor focus, one leaf only, mixed lighting), pick the slightly better match, cap confidence at 0.55, and add a caution to retake a sharp photo showing the full leaf surface.
+
 If not a rice leaf or image is unclear, choose the closest label but add a caution telling the user to retake a clearer photo.
 
 Respond with JSON only. No extra text.`;
@@ -39,7 +47,8 @@ export async function POST(request: NextRequest) {
     const model = genAI.getGenerativeModel({
       model: modelName,
       generationConfig: {
-        temperature: 0.7,
+        // Lower than default so similar-looking Tungro vs blast picks stay stable across runs
+        temperature: 0.25,
         responseMimeType: 'application/json',
         responseSchema: {
           type: SchemaType.OBJECT,
