@@ -92,6 +92,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   const availableCamerasRef = useRef<MediaDeviceInfo[]>([]);
   /** True while we are intentionally closing the Live WS (avoids spurious "Connection lost" from onclose). */
   const closingLiveSessionRef = useRef(false);
+  /** Bumped in cleanup so stale WebSocket callbacks from a previous attempt cannot fire errors after remount/retry. */
+  const liveSessionEpochRef = useRef(0);
 
   // ---- Helpers ----
 
@@ -102,6 +104,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
 
   const cleanup = useCallback(() => {
     closingLiveSessionRef.current = true;
+    liveSessionEpochRef.current += 1;
     // Stop timer
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -138,7 +141,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
     }
     finalizationSentRef.current = false;
     endingRef.current = false;
-    closingLiveSessionRef.current = false;
+    // Do not clear closingLiveSessionRef here — deferred onclose may run after this;
+    // reset only when starting a new session (startSession).
   }, []);
 
   // Cleanup on unmount
@@ -404,6 +408,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
 
   const startSession = useCallback(async () => {
     try {
+      closingLiveSessionRef.current = false;
       setError(null);
       updateStatus('connecting');
       setTranscription('');
@@ -449,6 +454,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
         httpOptions: { apiVersion: 'v1alpha' },
       });
 
+      const epochAtConnect = liveSessionEpochRef.current;
+
       const session = await ai.live.connect({
         model: LIVE_MODEL,
         config: {
@@ -466,9 +473,11 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
             // Connection established — handled below after await
           },
           onmessage: (message) => {
+            if (liveSessionEpochRef.current !== epochAtConnect) return;
             handleMessage(message, audioPlayer);
           },
           onerror: (err: unknown) => {
+            if (liveSessionEpochRef.current !== epochAtConnect) return;
             console.error('Live session error:', err);
             if (closingLiveSessionRef.current) return;
             if (statusRef.current === 'extracting') return;
@@ -479,17 +488,27 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
             updateStatus('error');
           },
           onclose: (event?: { code?: number; reason?: string }) => {
+            if (liveSessionEpochRef.current !== epochAtConnect) return;
             if (closingLiveSessionRef.current) return;
             if (endingRef.current) return;
             if (statusRef.current !== 'active') return;
             const code = event?.code;
-            if (code === 1000) return;
+            if (code === 1000 || code === 1001 || code === 1005) return;
             cleanup();
             setError('Connection lost. Please retry or switch to Photo Capture.');
             updateStatus('error');
           },
         },
       });
+
+      if (liveSessionEpochRef.current !== epochAtConnect) {
+        try {
+          session.close();
+        } catch {
+          // ignore
+        }
+        return;
+      }
 
       sessionRef.current = session;
 
@@ -555,6 +574,14 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
 
   const handleMessage = useCallback(
     (message: any, audioPlayer: AudioPlayer) => {
+      // goAway often arrives without serverContent — handle before early return
+      if (message?.goAway) {
+        if (!endingRef.current && sessionRef.current) {
+          handleSessionEnd(sessionRef.current);
+        }
+        return;
+      }
+
       const content = message?.serverContent;
       if (!content) return;
 
@@ -595,13 +622,6 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       if (content.interrupted) {
         audioPlayer.stop();
         setIsSpeaking(false);
-      }
-
-      // GoAway signal — treat as session expiry (Requirement 5.5)
-      if (message?.goAway) {
-        if (!endingRef.current && sessionRef.current) {
-          handleSessionEnd(sessionRef.current);
-        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
