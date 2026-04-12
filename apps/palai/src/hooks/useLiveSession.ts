@@ -308,28 +308,40 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   };
 
   const saveDiagnosis = async (diagnosis: StructuredDiagnosis): Promise<string> => {
-    const userId = authSession?.user?.id;
+    const userId = (authSession?.user as { id?: string })?.id;
     if (!userId) {
       throw new Error('User not authenticated');
     }
 
-    const { data, error: insertError } = await supabase
+    const insertData = {
+      user_id: userId,
+      image_url: 'live-session',
+      label: diagnosis.label,
+      confidence: diagnosis.confidence,
+      severity: diagnosis.severity,
+      explanation_en: diagnosis.explanationEn,
+      explanation_tl: diagnosis.explanationTl,
+      cautions: diagnosis.cautions,
+      prevention_steps: [] as {
+        step: number;
+        titleEn: string;
+        titleTl: string;
+        descriptionEn: string;
+        descriptionTl: string;
+      }[],
+      treatment_steps: [] as {
+        step: number;
+        titleEn: string;
+        titleTl: string;
+        descriptionEn: string;
+        descriptionTl: string;
+      }[],
+      sources: [] as { title: string; url: string }[],
+    };
+
+    const { data, error: insertError } = await (supabase as any)
       .from('scans')
-      .insert([
-        {
-          user_id: userId,
-          image_url: 'live-session',
-          label: diagnosis.label,
-          confidence: diagnosis.confidence,
-          severity: diagnosis.severity,
-          explanation_en: diagnosis.explanationEn,
-          explanation_tl: diagnosis.explanationTl,
-          cautions: diagnosis.cautions,
-          prevention_steps: [],
-          treatment_steps: [],
-          sources: [],
-        },
-      ])
+      .insert([insertData])
       .select()
       .single();
 
@@ -337,7 +349,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       throw new Error(insertError?.message || 'Failed to save scan record');
     }
 
-    return data.id;
+    return (data as { id: string }).id;
   };
 
   // ---- toggleCamera ----
