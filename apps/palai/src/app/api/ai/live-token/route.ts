@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { GoogleGenAI, Modality } from '@google/genai';
 import { authOptions } from '@/lib/auth';
 
-const LIVE_MODEL = 'gemini-2.5-flash-native-audio-preview-12-2025';
+const LIVE_MODEL = 'gemini-3.1-flash-live-preview';
 
 export async function POST() {
   try {
@@ -31,7 +31,6 @@ export async function POST() {
             responseModalities: [Modality.AUDIO],
           },
         },
-        httpOptions: { apiVersion: 'v1alpha' },
       },
     });
 

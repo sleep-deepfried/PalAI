@@ -41,7 +41,7 @@ interface UseLiveSessionOptions {
 // Constants
 // ---------------------------------------------------------------------------
 
-const LIVE_MODEL = 'gemini-2.5-flash-native-audio-preview-12-2025';
+const LIVE_MODEL = 'gemini-3.1-flash-live-preview';
 
 const SYSTEM_INSTRUCTION = `You are PalAI, a friendly AI assistant for Filipino rice farmers.
 You are having a live video conversation where you can see the farmer's rice leaves through their phone camera.
@@ -442,8 +442,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       audioPlayerRef.current = audioPlayer;
 
       // 6. Open WebSocket via ai.live.connect()
-      // Ephemeral tokens require v1alpha API version
-      const ai = new GoogleGenAI({ apiKey: token, httpOptions: { apiVersion: 'v1alpha' } });
+      const ai = new GoogleGenAI({ apiKey: token });
 
       const session = await ai.live.connect({
         model: LIVE_MODEL,
