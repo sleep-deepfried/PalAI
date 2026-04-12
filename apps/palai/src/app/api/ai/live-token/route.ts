@@ -31,6 +31,8 @@ export async function POST() {
             responseModalities: [Modality.AUDIO],
           },
         },
+        // Ephemeral token + Live API are v1alpha-only; default SDK version fails token create.
+        httpOptions: { apiVersion: 'v1alpha' },
       },
     });
 

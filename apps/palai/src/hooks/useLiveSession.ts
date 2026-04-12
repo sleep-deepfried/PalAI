@@ -441,8 +441,11 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       const audioPlayer = new AudioPlayer(24000);
       audioPlayerRef.current = audioPlayer;
 
-      // 6. Open WebSocket via ai.live.connect()
-      const ai = new GoogleGenAI({ apiKey: token });
+      // 6. Open WebSocket via ai.live.connect() (v1alpha required for ephemeral tokens)
+      const ai = new GoogleGenAI({
+        apiKey: token,
+        httpOptions: { apiVersion: 'v1alpha' },
+      });
 
       const session = await ai.live.connect({
         model: LIVE_MODEL,
