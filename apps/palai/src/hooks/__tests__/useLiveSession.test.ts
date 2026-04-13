@@ -18,7 +18,6 @@ vi.mock('@google/genai', () => ({
 // Mock live-compatibility
 vi.mock('@/lib/live-compatibility', () => ({
   checkLiveCompatibility: vi.fn(() => ({ supported: true, missing: [] })),
-  checkBandwidth: vi.fn(() => Promise.resolve({ sufficient: true, estimatedKbps: 500 })),
 }));
 
 // Mock audio-utils

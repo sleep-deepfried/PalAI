@@ -23,6 +23,7 @@
 ## ✨ Features
 
 ### Core Functionality
+
 - **📸 Image Upload & Camera Capture**: Upload images or capture directly from device camera
 - **🤖 AI-Powered Diagnosis**: Multi-provider failover system (Next API → Local Mock)
 - **💊 Treatment Guide**: Step-by-step prevention and treatment recommendations
@@ -32,6 +33,7 @@
 - **♿ Accessible UI**: WCAG AA compliant with Tailwind CSS and shadcn/ui
 
 ### Mobile-First Features
+
 - **📱 Bottom Navigation**: Fixed tab bar for easy thumb access
 - **📸 Full-Screen Camera**: Immersive camera experience with live preview
 - **👆 Touch-Optimized**: Minimum 44x44px touch targets
@@ -39,30 +41,29 @@
 - **⚡ Progressive Enhancement**: Mobile-first, scales up to desktop
 
 ### Disease Classifications
+
 - `HEALTHY` - No disease detected
-- `BACTERIAL_LEAF_BLIGHT` - Bacterial infection
-- `BROWN_SPOT` - Fungal brown spot
 - `SHEATH_BLIGHT` - Sheath blight disease
 - `TUNGRO` - Tungro virus
-- `BLAST` - Rice blast disease
+- `RICE_BLAST` - Rice blast disease
 
 ---
 
 ## 🛠 Tech Stack
 
-| Category | Technologies |
-|----------|-------------|
-| **Framework** | Next.js 15 (App Router, Server Actions) |
-| **Language** | TypeScript |
-| **UI** | Tailwind CSS + shadcn/ui |
-| **Authentication** | NextAuth.js |
-| **Database** | Supabase (PostgreSQL + Storage) |
-| **Image Processing** | Sharp |
-| **AI** | Google Gemini 1.5 Flash/Pro |
-| **Charts** | Recharts |
-| **Icons** | Lucide React |
-| **Testing** | Vitest (unit) + Playwright (E2E) |
-| **Monorepo** | pnpm workspaces |
+| Category             | Technologies                            |
+| -------------------- | --------------------------------------- |
+| **Framework**        | Next.js 15 (App Router, Server Actions) |
+| **Language**         | TypeScript                              |
+| **UI**               | Tailwind CSS + shadcn/ui                |
+| **Authentication**   | NextAuth.js                             |
+| **Database**         | Supabase (PostgreSQL + Storage)         |
+| **Image Processing** | Sharp                                   |
+| **AI**               | Google Gemini 1.5 Flash/Pro             |
+| **Charts**           | Recharts                                |
+| **Icons**            | Lucide React                            |
+| **Testing**          | Vitest (unit) + Playwright (E2E)        |
+| **Monorepo**         | pnpm workspaces                         |
 
 ---
 
@@ -186,6 +187,7 @@ supabase db push
 ```
 
 **This creates:**
+
 - `users` table with RLS policies
 - `scans` table with RLS policies
 - `palai-images` storage bucket (public read)
@@ -214,18 +216,21 @@ Visit `http://localhost:3000` 🎉
 ### Key Mobile Features
 
 #### Bottom Navigation
+
 - **Fixed bottom tab bar** for easy thumb access
 - 4 main sections: Home, Scan, History, Insights
 - Always visible for quick navigation
 - Safe-area support for notched devices
 
 #### Full-Screen Camera
+
 - **Immersive camera interface** with live preview
 - Large circular capture button (80x80px)
 - Camera flip button for front/back cameras
 - Visual guide overlay for leaf positioning
 
 #### Touch Optimizations
+
 - **Minimum 44x44px touch targets** (Apple HIG standard)
 - Active press animations (`active:scale-95`)
 - No accidental zoom on input focus (16px font minimum)
@@ -245,7 +250,8 @@ Visit `http://localhost:3000` 🎉
 }
 
 /* Touch Optimizations */
-button, a {
+button,
+a {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
@@ -257,7 +263,9 @@ button, a {
 
 /* Disable zoom on input focus (mobile) */
 @media screen and (max-width: 768px) {
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px !important;
   }
 }
@@ -266,15 +274,18 @@ button, a {
 ### Design System
 
 **Color Palette:**
+
 - Primary: Green 600/700 (agriculture theme)
 - Severity Colors: Green (Low), Yellow (Moderate), Red (High)
 
 **Spacing:**
+
 - Touch targets: Minimum 44x44px
 - Padding: 16px (mobile), 24px (tablet+)
 - Border radius: 16px for cards
 
 **Typography:**
+
 - Headings: Bold, 20-32px
 - Body: Regular, 14-16px
 - System font stack (San Francisco on iOS, Roboto on Android)
@@ -288,6 +299,7 @@ button, a {
 PalAI uses a **two-step AI architecture** for optimal performance:
 
 #### Step 1: Image Diagnosis (Fast)
+
 ```
 User uploads image
      ↓
@@ -303,6 +315,7 @@ Redirect to /result/[id]
 **Duration:** ~3-5 seconds
 
 #### Step 2: Treatment Guide (On-Demand)
+
 ```
 Load scan from database
      ↓
@@ -348,14 +361,16 @@ Next API (Gemini) → Local Mock
 #### 1. POST `/api/ai/treatment`
 
 **Request:**
+
 ```json
 {
-  "disease": "BLAST",
+  "disease": "RICE_BLAST",
   "language": "en"
 }
 ```
 
 **Response:**
+
 ```json
 {
   "preventionSteps": [
@@ -384,6 +399,7 @@ Caches treatment data in the database.
 ### Components
 
 **TreatmentGuide** (`components/result/TreatmentGuide.tsx`):
+
 - Prevention and Treatment tabs
 - Numbered step-by-step instructions
 - Bilingual content (syncs with language selector)
@@ -391,6 +407,7 @@ Caches treatment data in the database.
 - Mobile-optimized layout
 
 **ResultDetails** (`components/result/ResultDetails.tsx`):
+
 - Manages language state
 - Fetches treatment data if not cached
 - Shows loading/error states
@@ -399,7 +416,7 @@ Caches treatment data in the database.
 ### Database Schema
 
 ```sql
-ALTER TABLE scans 
+ALTER TABLE scans
 ADD COLUMN prevention_steps JSONB DEFAULT '[]',
 ADD COLUMN treatment_steps JSONB DEFAULT '[]',
 ADD COLUMN sources JSONB DEFAULT '[]';
@@ -414,18 +431,22 @@ ADD COLUMN sources JSONB DEFAULT '[]';
 The **Insights page** (`/stats`) transforms raw scan data into engaging visual stories:
 
 #### 1. Hero Statistics Cards
+
 Four animated metrics:
+
 - **Total Scans**: Count of analyzed leaves
 - **Average Confidence**: AI confidence score (0-100%)
 - **Health Score**: Percentage of healthy leaves
 - **Top Disease**: Most detected disease
 
 Features:
+
 - Animated number counting on load
 - Color-coded by metric type
 - Icon representations
 
 #### 2. AI Confidence Story
+
 **"How Accurate Are the Diagnoses?"**
 
 - **Confidence Gauge**: Circular gauge (Red → Yellow → Green)
@@ -433,6 +454,7 @@ Features:
 - **High Confidence Callout**: Percentage above 75%
 
 #### 3. Disease Detection Patterns
+
 **"What We're Detecting"**
 
 - **Disease Donut Chart**: Visual distribution with colors
@@ -442,6 +464,7 @@ Features:
   - "Crop health is improving over time 📈"
 
 #### 4. Trends Over Time
+
 **"Scan Trends Over Time"**
 
 - **Line Chart**: 7-day scan activity
@@ -449,6 +472,7 @@ Features:
 - Color-coded and responsive
 
 #### 5. Personal vs Community View
+
 - Toggle between "My Scans" and "Community"
 - Icon-based switch (User/Users)
 - Smooth transitions
@@ -479,6 +503,7 @@ Features:
 ### Components
 
 #### MultiStepProgress (`components/ui/MultiStepProgress.tsx`)
+
 - Visual progress bar (0-100%)
 - Step status indicators (pending/active/complete)
 - Check marks for completed steps
@@ -486,6 +511,7 @@ Features:
 - Color-coded states
 
 #### LoadingOverlay (`components/ui/LoadingOverlay.tsx`)
+
 - Full-screen overlay with backdrop blur
 - Progress component integration
 - Dynamic status messages
@@ -494,13 +520,16 @@ Features:
 - Mobile safe-area support
 
 #### SkeletonLoader (`components/ui/SkeletonLoader.tsx`)
+
 Variants:
+
 - `card`: Scan history cards
 - `image`: Result page image
 - `chart`: Dashboard charts
 - `text`: Text content
 
 #### useAbortController (`hooks/useAbortController.ts`)
+
 - Manages AbortController lifecycle
 - Cancels async operations
 - Automatic cleanup
@@ -544,6 +573,7 @@ pnpm test:coverage
 ```
 
 **Test files:**
+
 - `apps/palai/src/lib/image.test.ts` - Image validation
 - `apps/palai/src/lib/ml.test.ts` - ML provider
 - `apps/palai/src/lib/schema.test.ts` - Zod validation
@@ -559,11 +589,13 @@ pnpm test:e2e:ui
 ```
 
 **Test files:**
+
 - `apps/palai/e2e/scan.spec.ts` - Scan flow
 
 ### Manual Testing
 
 #### Scan Flow
+
 1. Upload/capture image
 2. View loading progress
 3. Check diagnosis result
@@ -571,12 +603,14 @@ pnpm test:e2e:ui
 5. Test language switcher
 
 #### History Page
+
 1. View scan list
 2. Click scan card
 3. Delete individual scan
 4. Clear all scans
 
 #### Stats Page
+
 1. Toggle Personal/Community views
 2. Verify charts render
 3. Check insights generation
@@ -605,6 +639,7 @@ vercel --prod
 ```
 
 #### Other Platforms
+
 - Railway
 - Render
 - Netlify
@@ -672,6 +707,7 @@ MIT
 ## 📞 Support
 
 For issues, questions, or feature requests:
+
 - Open an issue on GitHub
 - Contact: [Your Contact Info]
 
@@ -679,4 +715,4 @@ For issues, questions, or feature requests:
 
 **Built with ❤️ for Filipino farmers**
 
-*Last Updated: November 2025*
+_Last Updated: November 2025_

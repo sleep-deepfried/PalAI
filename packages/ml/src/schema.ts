@@ -1,14 +1,7 @@
 import { z } from 'zod';
 import type { Label, Severity, DiagnoseOutput } from './types';
 
-export const LabelSchema = z.enum([
-  'HEALTHY',
-  'BACTERIAL_LEAF_BLIGHT',
-  'BROWN_SPOT',
-  'SHEATH_BLIGHT',
-  'TUNGRO',
-  'BLAST',
-]);
+export const LabelSchema = z.enum(['HEALTHY', 'SHEATH_BLIGHT', 'TUNGRO', 'RICE_BLAST']);
 
 export const SeveritySchema = z.enum(['LOW', 'MODERATE', 'HIGH']);
 

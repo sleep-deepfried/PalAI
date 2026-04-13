@@ -49,3 +49,6 @@ apps/palai/.supabase/
 
 # Kiro
 .kiro/
+
+# ESP32 WiFi / Supabase secrets
+firmware/**/secrets.h

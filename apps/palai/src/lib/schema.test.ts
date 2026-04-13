@@ -18,7 +18,7 @@ describe('Schema Validation', () => {
 
   it('should clamp confidence to 0-1 range', () => {
     const highConfidence = {
-      label: 'BLAST' as const,
+      label: 'RICE_BLAST' as const,
       confidence: 1.5,
       severity: 'HIGH' as const,
       explanationEn: 'Test',
@@ -67,14 +67,7 @@ describe('Schema Validation', () => {
 
 describe('Label Schema', () => {
   it('should accept valid labels', () => {
-    const validLabels = [
-      'HEALTHY',
-      'BACTERIAL_LEAF_BLIGHT',
-      'BROWN_SPOT',
-      'SHEATH_BLIGHT',
-      'TUNGRO',
-      'BLAST',
-    ];
+    const validLabels = ['HEALTHY', 'SHEATH_BLIGHT', 'TUNGRO', 'RICE_BLAST'];
 
     validLabels.forEach((label) => {
       expect(() => LabelSchema.parse(label)).not.toThrow();

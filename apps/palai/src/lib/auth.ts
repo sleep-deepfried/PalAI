@@ -310,7 +310,7 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
-    async jwt({ token, user, profile, account }) {
+    async jwt({ token, user, profile, account, trigger }) {
       if (user?.email) {
         try {
           const dbUser = await upsertUser(
@@ -322,6 +322,25 @@ export const authOptions: NextAuthOptions = {
           (token as ExtendedJWT).isOnboarded = dbUser.isOnboarded;
         } catch (error) {
           console.error('Failed to fetch user in JWT callback:', error);
+        }
+      }
+
+      if (trigger === 'update') {
+        const ext = token as ExtendedJWT;
+        if (ext.userId) {
+          try {
+            const client = getAdminClient();
+            const { data, error } = await client
+              .from('users')
+              .select('is_onboarded')
+              .eq('id', ext.userId)
+              .single();
+            if (data && !error) {
+              ext.isOnboarded = data.is_onboarded;
+            }
+          } catch (error) {
+            console.error('Failed to refresh onboarding flag in JWT:', error);
+          }
         }
       }
       // Persist Google profile image from the OAuth profile (most reliable source)

@@ -1,7 +1,8 @@
 'use server';
 
+import { LocalMockProvider } from '@palai/ml';
 import { processImage, validateImageFile } from '@/lib/image';
-import { diagnoseWithFailover } from '@/lib/ai';
+import { diagnoseLeafImage } from '@/lib/diagnose-gemini';
 import { supabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import { getDemoUserId } from '@/lib/demo-user';
@@ -27,20 +28,24 @@ export async function uploadAndDiagnose(formData: FormData) {
   const buffer = Buffer.from(arrayBuffer);
   const processedBuffer = await processImage(buffer);
 
-  // Diagnose with failover
-  const diagnosis = await diagnoseWithFailover(
-    {
+  // Call Gemini in-process (no internal fetch — avoids middleware 405 on /api/ai/diagnose)
+  let diagnosis;
+  try {
+    diagnosis = await diagnoseLeafImage({
+      imageBase64: processedBuffer.toString('base64'),
+      mimeType: 'image/jpeg',
+      locale,
+      fieldNotes: '',
+    });
+  } catch (error) {
+    console.error('Gemini diagnose failed, using local mock:', error);
+    const provider = new LocalMockProvider();
+    diagnosis = await provider.diagnose({
       imageBuffer: processedBuffer,
       mimeType: 'image/jpeg',
       promptExtras: { locale },
-    },
-    {
-      nextApi: {
-        baseUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
-      },
-      local: true,
-    }
-  );
+    });
+  }
 
   // Validate diagnosis result
   if (!diagnosis || !diagnosis.label || !diagnosis.severity) {
@@ -82,19 +87,21 @@ export async function uploadAndDiagnose(formData: FormData) {
   // Insert scan record (treatment data will be fetched separately on result page)
   const { data: scanData, error: scanError } = await supabaseAdmin!
     .from('scans')
-    .insert([{
-      user_id: userId,
-      image_url: imageUrl,
-      label: diagnosis.label,
-      confidence: diagnosis.confidence,
-      severity: diagnosis.severity,
-      explanation_en: diagnosis.explanationEn,
-      explanation_tl: diagnosis.explanationTl,
-      cautions: diagnosis.cautions,
-      prevention_steps: [],
-      treatment_steps: [],
-      sources: [],
-    }] as any)
+    .insert([
+      {
+        user_id: userId,
+        image_url: imageUrl,
+        label: diagnosis.label,
+        confidence: diagnosis.confidence,
+        severity: diagnosis.severity,
+        explanation_en: diagnosis.explanationEn,
+        explanation_tl: diagnosis.explanationTl,
+        cautions: diagnosis.cautions,
+        prevention_steps: [],
+        treatment_steps: [],
+        sources: [],
+      },
+    ] as any)
     .select()
     .single();
 
@@ -104,4 +111,3 @@ export async function uploadAndDiagnose(formData: FormData) {
 
   redirect(`/result/${(scanData as any).id}`);
 }
-
