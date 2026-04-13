@@ -1,7 +1,16 @@
 'use client';
 
 import { type RefObject } from 'react';
-import { Mic, Square, Play, AlertTriangle, Camera, RotateCcw, RotateCw } from 'lucide-react';
+import {
+  Mic,
+  MicOff,
+  Square,
+  Play,
+  AlertTriangle,
+  Camera,
+  RotateCcw,
+  RotateCw,
+} from 'lucide-react';
 import type { LiveSessionState } from '@/hooks/useLiveSession';
 
 export interface LiveSessionUIProps {
@@ -11,10 +20,12 @@ export interface LiveSessionUIProps {
   isSpeaking: boolean;
   isWarning: boolean;
   error: string | null;
+  isMuted?: boolean;
   onStart: () => void;
   onEnd: () => void;
   onFallback: () => void;
   onToggleCamera?: () => void;
+  onToggleMute?: () => void;
   hasMultipleCameras?: boolean;
   videoRef: RefObject<HTMLVideoElement>;
 }
@@ -37,10 +48,12 @@ export function LiveSessionUI({
   isSpeaking,
   isWarning,
   error,
+  isMuted = false,
   onStart,
   onEnd,
   onFallback,
   onToggleCamera,
+  onToggleMute,
   hasMultipleCameras = false,
   videoRef,
 }: LiveSessionUIProps) {
@@ -119,11 +132,19 @@ export function LiveSessionUI({
           <div className="absolute top-4 left-4">
             <div
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-sm text-xs font-semibold ${
-                isSpeaking ? 'bg-green-500/80 text-white' : 'bg-black/50 text-gray-300'
+                isMuted
+                  ? 'bg-red-500/80 text-white'
+                  : isSpeaking
+                    ? 'bg-green-500/80 text-white'
+                    : 'bg-black/50 text-gray-300'
               }`}
             >
-              <Mic className={`w-3.5 h-3.5 ${isSpeaking ? 'animate-pulse' : ''}`} />
-              {isSpeaking ? 'AI Speaking' : 'Listening'}
+              {isMuted ? (
+                <MicOff className="w-3.5 h-3.5" />
+              ) : (
+                <Mic className={`w-3.5 h-3.5 ${isSpeaking ? 'animate-pulse' : ''}`} />
+              )}
+              {isMuted ? 'Muted' : isSpeaking ? 'AI Speaking' : 'Listening'}
             </div>
           </div>
         )}
@@ -150,7 +171,7 @@ export function LiveSessionUI({
 
         {/* Bottom controls — matches CameraCapture 3-column layout */}
         <div className="absolute bottom-20 left-0 right-0 pb-4 safe-area-bottom">
-          <div className="flex items-center justify-center gap-8 px-4">
+          <div className="flex items-center justify-center gap-6 px-4">
             {/* Left: Switch Camera (or spacer) */}
             {hasMultipleCameras && (isIdle || isActive) ? (
               <button
@@ -194,8 +215,19 @@ export function LiveSessionUI({
               </button>
             )}
 
-            {/* Right: spacer to balance layout */}
-            <div className="w-12 h-12" />
+            {/* Right: Mute button (when active) or spacer */}
+            {isActive && onToggleMute ? (
+              <button
+                onClick={onToggleMute}
+                className={`w-12 h-12 backdrop-blur-sm rounded-full flex items-center justify-center hover:opacity-80 active:scale-95 transition-all ${
+                  isMuted ? 'bg-red-600/90 text-white' : 'bg-gray-800/80 text-white'
+                }`}
+              >
+                {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              </button>
+            ) : (
+              <div className="w-12 h-12" />
+            )}
           </div>
 
           {/* Label below center button */}

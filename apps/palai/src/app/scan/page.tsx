@@ -412,10 +412,12 @@ export default function ScanPage() {
             isSpeaking={liveSession.isSpeaking}
             isWarning={liveSession.isWarning}
             error={liveSession.error}
+            isMuted={liveSession.isMuted}
             onStart={liveSession.startSession}
             onEnd={liveSession.endSession}
             onFallback={handleFallback}
             onToggleCamera={liveSession.toggleCamera}
+            onToggleMute={liveSession.toggleMute}
             hasMultipleCameras={liveSession.hasMultipleCameras}
             videoRef={liveVideoRef}
           />

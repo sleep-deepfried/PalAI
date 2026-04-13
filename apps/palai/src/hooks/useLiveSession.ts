@@ -21,12 +21,14 @@ export interface LiveSessionState {
   transcription: string;
   isSpeaking: boolean;
   error: string | null;
+  isMuted: boolean;
 }
 
 export interface UseLiveSessionReturn extends LiveSessionState {
   startSession: () => Promise<void>;
   endSession: () => Promise<void>;
   toggleCamera: () => void;
+  toggleMute: () => void;
   hasMultipleCameras: boolean;
 }
 
@@ -43,16 +45,29 @@ interface UseLiveSessionOptions {
 
 const LIVE_MODEL = 'gemini-3.1-flash-live-preview';
 
-const SYSTEM_INSTRUCTION = `You are PalAI, a friendly AI assistant for Filipino rice farmers.
-You are having a live video conversation where you can see the farmer's rice leaves through their phone camera.
-Guide the farmer to show you different angles of affected leaves.
-Ask follow-up questions about symptoms, field conditions, and recent weather.
-You MUST always respond in English. You may mix in common Tagalog words (Taglish) but the primary language must be English.
-Keep responses short and conversational.
-When you have enough information, tell the farmer your assessment.`;
+const SYSTEM_INSTRUCTION = `You are PalAI, a rice disease diagnosis assistant for Filipino farmers.
+
+Your task:
+1. Ask the farmer to show you their rice leaves through the camera
+2. Once you can see the leaves clearly, analyze them for diseases
+3. Provide your diagnosis immediately based on what you see
+
+Common rice diseases to look for:
+- Bacterial Leaf Blight: water-soaked lesions, yellow to white streaks
+- Brown Spot: oval brown spots with gray centers
+- Sheath Blight: irregular lesions on leaf sheaths
+- Tungro: yellow-orange discoloration, stunted growth
+- Rice Blast: diamond-shaped lesions with gray centers
+
+Keep responses SHORT and direct. Do NOT ask follow-up questions about field conditions or weather.
+Focus only on what you can see in the camera.
+Speak in English with occasional Tagalog words (Taglish).`;
+
+const INITIAL_PROMPT =
+  'Greet the farmer briefly and ask them to show you their rice leaves so you can check for any diseases.';
 
 const FINALIZATION_PROMPT =
-  'We are running low on time. Please finalize your diagnosis now. In your next response, summarize your findings.';
+  'Time is almost up. Give your final diagnosis now based on what you have seen. Be direct and concise.';
 
 const WARNING_THRESHOLD = 30;
 const FINALIZATION_THRESHOLD = 10;
@@ -74,6 +89,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   // ---- Refs (mutable across renders, not triggering re-renders) ----
   const sessionRef = useRef<any>(null);
@@ -90,6 +106,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   const accumulatedTextRef = useRef('');
   const currentCameraIndexRef = useRef(0);
   const availableCamerasRef = useRef<MediaDeviceInfo[]>([]);
+  const isMutedRef = useRef(false);
 
   // ---- Helpers ----
 
@@ -168,6 +185,9 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
     const workletNode = new AudioWorkletNode(audioCtx, 'pcm-processor');
 
     workletNode.port.onmessage = (event: MessageEvent<Float32Array>) => {
+      // Skip sending audio if muted
+      if (isMutedRef.current) return;
+
       const pcmBuffer = resampleAndEncode(event.data, audioCtx.sampleRate, 16000);
       const base64 = arrayBufferToBase64(pcmBuffer);
       try {
@@ -206,14 +226,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
         if (remaining <= FINALIZATION_THRESHOLD && !finalizationSentRef.current) {
           finalizationSentRef.current = true;
           try {
-            session.sendClientContent({
-              turns: [
-                {
-                  role: 'user',
-                  parts: [{ text: FINALIZATION_PROMPT }],
-                },
-              ],
-              turnComplete: true,
+            session.sendRealtimeInput({
+              text: FINALIZATION_PROMPT,
             });
           } catch {
             // Session may have closed
@@ -256,14 +270,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       // Wire sendMessage and waitForResponse to the live session
       const sendMessage = (text: string) => {
         try {
-          session.sendClientContent({
-            turns: [
-              {
-                role: 'user',
-                parts: [{ text }],
-              },
-            ],
-            turnComplete: true,
+          session.sendRealtimeInput({
+            text: text,
           });
         } catch {
           // Session may have closed
@@ -390,6 +398,13 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       });
   }, [videoRef]);
 
+  // ---- toggleMute ----
+
+  const toggleMute = useCallback(() => {
+    isMutedRef.current = !isMutedRef.current;
+    setIsMuted(isMutedRef.current);
+  }, []);
+
   // ---- startSession ----
 
   const startSession = useCallback(async () => {
@@ -442,23 +457,27 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       audioPlayerRef.current = audioPlayer;
 
       // 6. Open WebSocket via ai.live.connect()
-      const ai = new GoogleGenAI({ apiKey: token });
+      // Ephemeral tokens require v1alpha API version
+      const ai = new GoogleGenAI({ apiKey: token, httpOptions: { apiVersion: 'v1alpha' } });
 
       const session = await ai.live.connect({
         model: LIVE_MODEL,
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
-            languageCode: 'en-US',
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: 'Zephyr',
+              },
+            },
           },
           systemInstruction: {
             parts: [{ text: SYSTEM_INSTRUCTION }],
           },
-          outputAudioTranscription: {},
         },
         callbacks: {
           onopen: () => {
-            // Connection established — handled below after await
+            console.log('Live session connected');
           },
           onmessage: (message) => {
             handleMessage(message, audioPlayer);
@@ -471,7 +490,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
               updateStatus('error');
             }
           },
-          onclose: () => {
+          onclose: (event: unknown) => {
+            console.log('Live session closed:', event);
             if (!endingRef.current && statusRef.current === 'active') {
               // Unexpected close
               cleanup();
@@ -483,6 +503,9 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
       });
 
       sessionRef.current = session;
+
+      // Wait a moment for the connection to stabilize
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // 7. Start video capture (1fps)
       if (videoRef.current) {
@@ -508,18 +531,8 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
 
       // 10. Send initial greeting prompt so Gemini speaks first
       try {
-        session.sendClientContent({
-          turns: [
-            {
-              role: 'user',
-              parts: [
-                {
-                  text: 'Greet the farmer briefly and ask what rice crop or leaf they want you to analyze today.',
-                },
-              ],
-            },
-          ],
-          turnComplete: true,
+        session.sendRealtimeInput({
+          text: INITIAL_PROMPT,
         });
       } catch {
         // Session may have closed
@@ -615,9 +628,11 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
     transcription,
     isSpeaking,
     error,
+    isMuted,
     startSession,
     endSession,
     toggleCamera,
+    toggleMute,
     hasMultipleCameras,
   };
 }

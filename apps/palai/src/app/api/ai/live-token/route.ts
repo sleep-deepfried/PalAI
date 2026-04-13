@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { GoogleGenAI, Modality } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { authOptions } from '@/lib/auth';
-
-const LIVE_MODEL = 'gemini-3.1-flash-live-preview';
 
 export async function POST() {
   try {
@@ -25,12 +23,7 @@ export async function POST() {
         uses: 1,
         expireTime: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
         newSessionExpireTime: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
-        liveConnectConstraints: {
-          model: LIVE_MODEL,
-          config: {
-            responseModalities: [Modality.AUDIO],
-          },
-        },
+        httpOptions: { apiVersion: 'v1alpha' },
       },
     });
 
