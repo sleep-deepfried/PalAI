@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('Using Gemini API for treatment guide');
-    const modelName = process.env.GEMINI_TREATMENT_MODEL || 'gemini-2.5-flash';
+    const modelName = process.env.GEMINI_TREATMENT_MODEL || 'gemini-2.5-flash-lite';
     const genAI = new GoogleGenerativeAI(apiKey);
 
     const stepSchema: Schema = {
