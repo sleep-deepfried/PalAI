@@ -374,6 +374,11 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
               },
             },
           },
+          realtimeInputConfig: {
+            automaticActivityDetection: {
+              disabled: false,
+            },
+          },
           systemInstruction: {
             parts: [{ text: SYSTEM_INSTRUCTION }],
           },
