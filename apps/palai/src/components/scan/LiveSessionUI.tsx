@@ -57,11 +57,10 @@ export function LiveSessionUI({
   hasMultipleCameras = false,
   videoRef,
 }: LiveSessionUIProps) {
-  const isActive = status === 'active' || status === 'extracting';
+  const isActive = status === 'active';
   const isIdle = status === 'idle';
   const isConnecting = status === 'connecting';
   const isError = status === 'error';
-  const isExtracting = status === 'extracting';
 
   // --- Error state ---
   if (isError) {
@@ -151,16 +150,6 @@ export function LiveSessionUI({
 
         {/* Spacer pushes bottom content down */}
         <div className="flex-1" />
-
-        {/* Extracting overlay */}
-        {isExtracting && (
-          <div className="mx-4 mb-3 px-4 py-3 bg-black/70 backdrop-blur-sm rounded-xl text-center">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />
-              <span className="text-white text-sm font-semibold">Generating diagnosis…</span>
-            </div>
-          </div>
-        )}
 
         {/* Transcription overlay (bottom) */}
         {isActive && transcription && (

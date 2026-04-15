@@ -41,21 +41,13 @@ export default function ScanPage() {
   const [liveSupported, setLiveSupported] = useState(false);
   const liveVideoRef = useRef<HTMLVideoElement>(null);
 
-  const handleDiagnosisComplete = useCallback(
-    (scanId: string) => {
-      router.push(`/result/${scanId}`);
-    },
-    [router]
-  );
-
   const handleFallback = useCallback(() => {
     setMode('photo');
   }, []);
 
   const liveSession = useLiveSession({
     videoRef: liveVideoRef,
-    onDiagnosisComplete: handleDiagnosisComplete,
-    onFallback: handleFallback,
+    onSessionEnd: handleFallback,
   });
 
   // Resolve tunnel URL on client only to avoid SSR/client hydration mismatch
