@@ -101,6 +101,9 @@ export function ResultDetails({
         />
       </div>
 
+      {/* Spray Control - primary action for diseased plants */}
+      <SprayControl show={disease !== 'HEALTHY'} language={language} />
+
       {/* Cautions */}
       {cautions.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
@@ -144,9 +147,6 @@ export function ResultDetails({
           language={language}
         />
       )}
-
-      {/* Spray Control - only show for diseased plants */}
-      <SprayControl show={disease !== 'HEALTHY'} language={language} />
     </>
   );
 }
