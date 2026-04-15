@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Toaster } from 'sonner';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Providers } from '@/components/layout/Providers';
 import { FullscreenHandler } from '@/components/ui/FullscreenHandler';
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-gray-50">
         <Providers>
+          <Toaster position="top-center" richColors />
           <FullscreenHandler />
           <InstallPrompt />
           <div className="min-h-screen pb-16">{children}</div>
