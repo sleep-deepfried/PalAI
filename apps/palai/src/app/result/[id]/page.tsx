@@ -4,23 +4,28 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { supabaseAdmin } from '@/lib/supabase';
 import { SeverityBadge } from '@/components/result/SeverityBadge';
-import { ShareLink } from '@/components/result/ShareLink';
 import { ResultDetails } from '@/components/result/ResultDetails';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { LABEL_LABELS } from '@/lib/constants';
-import { ArrowLeft, Calendar, Camera, History as HistoryIcon, CheckCircle, AlertTriangle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar,
+  Camera,
+  History as HistoryIcon,
+  CheckCircle,
+  AlertTriangle,
+} from 'lucide-react';
 
 // Force dynamic rendering - no caching
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 async function ResultContent({ id }: { id: string }) {
-  
   if (!supabaseAdmin) {
     console.error('Supabase admin client not available');
     notFound();
   }
-  
+
   const { data: scan, error } = await (supabaseAdmin as any)
     .from('scans')
     .select('*')
@@ -33,27 +38,27 @@ async function ResultContent({ id }: { id: string }) {
   }
 
   // Ensure cautions is always an array
-  const cautions = Array.isArray(scan.cautions) 
-    ? scan.cautions 
-    : scan.cautions 
-      ? [scan.cautions] 
+  const cautions = Array.isArray(scan.cautions)
+    ? scan.cautions
+    : scan.cautions
+      ? [scan.cautions]
       : [];
 
-  const shareUrl = process.env.NEXTAUTH_URL 
-    ? `${process.env.NEXTAUTH_URL}/result/${id}`
-    : '';
+  const shareUrl = process.env.NEXTAUTH_URL ? `${process.env.NEXTAUTH_URL}/result/${id}` : '';
 
   const isHealthy = scan.label === 'HEALTHY';
   const diseaseIcon = isHealthy ? CheckCircle : AlertTriangle;
   const DiseaseIcon = diseaseIcon;
-  const headerGradient = isHealthy 
-    ? 'from-green-600 via-green-700 to-emerald-800' 
+  const headerGradient = isHealthy
+    ? 'from-green-600 via-green-700 to-emerald-800'
     : 'from-amber-600 via-orange-600 to-red-700';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       {/* Enhanced Header with Gradient */}
-      <div className={`bg-gradient-to-br ${headerGradient} text-white px-4 py-8 safe-area-top relative overflow-hidden`}>
+      <div
+        className={`bg-gradient-to-br ${headerGradient} text-white px-4 py-8 safe-area-top relative overflow-hidden`}
+      >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
@@ -72,14 +77,18 @@ async function ResultContent({ id }: { id: string }) {
 
           {/* Title with Icon */}
           <div className="flex items-start gap-4">
-            <div className={`flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center ${
-              isHealthy ? 'bg-green-500/30' : 'bg-orange-500/30'
-            } backdrop-blur-sm`}>
+            <div
+              className={`flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center ${
+                isHealthy ? 'bg-green-500/30' : 'bg-orange-500/30'
+              } backdrop-blur-sm`}
+            >
               <DiseaseIcon className="w-8 h-8" />
             </div>
             <div className="flex-1">
               <div className="text-sm text-white/80 mb-1">Diagnosis Result</div>
-              <h1 className="text-3xl font-bold mb-2">{LABEL_LABELS[scan.label as keyof typeof LABEL_LABELS]}</h1>
+              <h1 className="text-3xl font-bold mb-2">
+                {LABEL_LABELS[scan.label as keyof typeof LABEL_LABELS]}
+              </h1>
               <SeverityBadge severity={scan.severity} />
             </div>
           </div>
@@ -113,8 +122,8 @@ async function ResultContent({ id }: { id: string }) {
           cautions={cautions}
         />
 
-        {/* Metadata & Share */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 space-y-4">
+        {/* Metadata */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Calendar className="w-4 h-4 text-gray-400" />
             <span>
@@ -127,7 +136,6 @@ async function ResultContent({ id }: { id: string }) {
               })}
             </span>
           </div>
-          <ShareLink shareUrl={shareUrl} />
         </div>
 
         {/* Action Buttons */}
@@ -178,11 +186,7 @@ function LoadingSkeleton() {
   );
 }
 
-export default async function ResultPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   return (
