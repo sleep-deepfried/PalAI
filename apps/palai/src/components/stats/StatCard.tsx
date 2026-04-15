@@ -41,10 +41,10 @@ export function StatCard({ icon: Icon, label, value, trend, color = 'blue' }: St
   }, [value, numericValue]);
 
   const colors = {
-    green: 'bg-green-100 text-green-600',
-    blue: 'bg-blue-100 text-blue-600',
-    purple: 'bg-purple-100 text-purple-600',
-    orange: 'bg-orange-100 text-orange-600',
+    green: 'bg-olive-100 text-olive-600',
+    blue: 'bg-olive-100 text-olive-600',
+    purple: 'bg-sunbeam-100 text-sunbeam-600',
+    orange: 'bg-sunbeam-100 text-sunbeam-600',
   };
 
   return (
@@ -56,20 +56,20 @@ export function StatCard({ icon: Icon, label, value, trend, color = 'blue' }: St
             <Icon className="w-6 h-6" />
           </div>
         </div>
-        
+
         <div className="text-center flex-1">
-          <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-            {label}
-          </div>
-          
+          <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">{label}</div>
+
           <div className="text-2xl sm:text-xl font-bold text-gray-900">
             {typeof value === 'number' ? displayValue : value}
           </div>
-          
+
           {trend && (
-            <div className={`flex items-center justify-center gap-1 text-xs font-medium mt-2 ${
-              trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
-            }`}>
+            <div
+              className={`flex items-center justify-center gap-1 text-xs font-medium mt-2 ${
+                trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
               <span>{trend.direction === 'up' ? '↑' : '↓'}</span>
               <span>{trend.value}</span>
             </div>
@@ -79,4 +79,3 @@ export function StatCard({ icon: Icon, label, value, trend, color = 'blue' }: St
     </div>
   );
 }
-

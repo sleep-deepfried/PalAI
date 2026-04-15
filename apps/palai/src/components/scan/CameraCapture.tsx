@@ -31,7 +31,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
   useEffect(() => {
     if (stream && videoRef.current) {
       const video = videoRef.current;
-      
+
       // Wait for any previous play promise to complete
       const playVideo = async () => {
         try {
@@ -39,10 +39,10 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
           if (playPromiseRef.current) {
             await playPromiseRef.current.catch(() => {});
           }
-          
+
           // Set the new stream
           video.srcObject = stream;
-          
+
           // Wait for the video to be ready
           await new Promise<void>((resolve) => {
             if (video.readyState >= 2) {
@@ -51,7 +51,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
               video.onloadeddata = () => resolve();
             }
           });
-          
+
           // Start playing
           playPromiseRef.current = video.play();
           await playPromiseRef.current;
@@ -63,10 +63,10 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
           }
         }
       };
-      
+
       playVideo();
     }
-    
+
     return () => {
       const currentVideo = videoRef.current;
       if (currentVideo) {
@@ -79,23 +79,23 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
     try {
       setError(null);
       setIsReady(false);
-      
+
       // Get list of available cameras
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      const videoDevices = devices.filter((device) => device.kind === 'videoinput');
       setAvailableCameras(videoDevices);
-      
+
       let mediaStream: MediaStream;
-      
+
       // If we have multiple cameras, use device ID
       if (videoDevices.length > 1 && currentCameraIndex < videoDevices.length) {
         const deviceId = videoDevices[currentCameraIndex].deviceId;
         try {
           mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { 
+            video: {
               deviceId: { exact: deviceId },
-              width: { ideal: 1920 }, 
-              height: { ideal: 1080 } 
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
             },
             audio: false,
           });
@@ -123,7 +123,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
           });
         }
       }
-      
+
       setStream(mediaStream);
       setIsReady(true);
     } catch (err) {
@@ -139,22 +139,24 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
         videoRef.current.pause();
         videoRef.current.srcObject = null;
       }
-      
+
       // Wait for any play promise to resolve before stopping tracks
       if (playPromiseRef.current) {
-        playPromiseRef.current.catch(() => {}).finally(() => {
-          stream.getTracks().forEach((track) => {
-            track.stop();
-            track.enabled = false;
+        playPromiseRef.current
+          .catch(() => {})
+          .finally(() => {
+            stream.getTracks().forEach((track) => {
+              track.stop();
+              track.enabled = false;
+            });
           });
-        });
       } else {
         stream.getTracks().forEach((track) => {
           track.stop();
           track.enabled = false;
         });
       }
-      
+
       setStream(null);
       setIsReady(false);
     }
@@ -165,37 +167,41 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     ctx.drawImage(video, 0, 0);
-    
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], `capture-${Date.now()}.jpg`, {
-          type: 'image/jpeg',
-        });
-        const dataUrl = canvas.toDataURL('image/jpeg');
-        
-        // Stop camera after capture
-        stopCamera();
-        
-        onCapture(file, dataUrl);
-      }
-    }, 'image/jpeg', 0.95);
+
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          const file = new File([blob], `capture-${Date.now()}.jpg`, {
+            type: 'image/jpeg',
+          });
+          const dataUrl = canvas.toDataURL('image/jpeg');
+
+          // Stop camera after capture
+          stopCamera();
+
+          onCapture(file, dataUrl);
+        }
+      },
+      'image/jpeg',
+      0.95
+    );
   };
 
   const toggleCamera = () => {
     // If we have multiple cameras, cycle through them
     if (availableCameras.length > 1) {
-      setCurrentCameraIndex(prev => (prev + 1) % availableCameras.length);
+      setCurrentCameraIndex((prev) => (prev + 1) % availableCameras.length);
     } else {
       // Fallback to facing mode toggle
-      setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
+      setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
     }
   };
 
@@ -221,7 +227,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
           <p className="text-sm text-gray-400 mb-6">{error}</p>
           <button
             onClick={startCamera}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 active:scale-95 transition-transform"
+            className="px-6 py-3 bg-olive-600 text-white rounded-lg font-medium hover:bg-olive-700 active:scale-95 transition-transform"
           >
             Try Again
           </button>
@@ -246,10 +252,10 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="relative w-80 h-80 max-w-[85vw] max-h-[85vw]">
           <div className="absolute inset-0 border-2 border-white rounded-2xl opacity-50"></div>
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-green-400 rounded-tl-2xl"></div>
-          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-green-400 rounded-tr-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-green-400 rounded-bl-2xl"></div>
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-green-400 rounded-br-2xl"></div>
+          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-sunbeam rounded-tl-2xl"></div>
+          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-sunbeam rounded-tr-2xl"></div>
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-sunbeam rounded-bl-2xl"></div>
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-sunbeam rounded-br-2xl"></div>
         </div>
       </div>
 
@@ -257,9 +263,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
       {isReady && (
         <div className="absolute top-8 left-0 right-0 text-center px-4 pointer-events-none">
           <div className="bg-black/60 backdrop-blur-sm inline-block px-3 py-1.5 rounded-full">
-            <p className="text-white text-xs font-medium">
-              Position rice leaf inside the frame
-            </p>
+            <p className="text-white text-xs font-medium">Position rice leaf inside the frame</p>
           </div>
         </div>
       )}
@@ -286,7 +290,7 @@ export function CameraCapture({ onCapture, onUpload }: CameraCaptureProps) {
             disabled={!isReady}
             className="w-18 h-18 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-transform disabled:opacity-50 disabled:bg-gray-400 shadow-lg"
           >
-            <div className="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="w-14 h-14 bg-olive-600 rounded-full flex items-center justify-center">
               <Camera className="w-7 h-7 text-white" />
             </div>
           </button>

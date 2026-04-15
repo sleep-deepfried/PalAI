@@ -103,7 +103,7 @@ export function SprayControl({ show = true, language = 'en' }: SprayControlProps
     <button
       onClick={handleActivate}
       disabled={isLoading}
-      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-xl font-semibold transition-colors"
+      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-sunbeam hover:bg-sunbeam-400 disabled:bg-sunbeam-200 text-olive-700 rounded-xl font-semibold transition-colors"
     >
       <Droplets className="w-5 h-5" />
       {language === 'en' ? 'Activate Spray Treatment' : 'I-activate ang Spray Treatment'}

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'PalAI',
   },
-  themeColor: '#16a34a',
+  themeColor: '#576238',
 };
 
 export const viewport: Viewport = {
@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50">
+      <body className="bg-ivory">
         <Providers>
           <Toaster position="top-center" richColors />
           <FullscreenHandler />

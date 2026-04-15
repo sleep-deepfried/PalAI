@@ -341,7 +341,7 @@ export default function ScanPage() {
   return (
     <div className="fixed inset-0 bg-black flex flex-col overflow-hidden z-10">
       {/* Enhanced Header with Gradient */}
-      <div className="bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white px-5 pt-16 pb-6 safe-area-top flex-shrink-0 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-olive-500 via-olive-600 to-olive-700 text-white px-5 pt-16 pb-6 safe-area-top flex-shrink-0 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl -translate-x-24 -translate-y-24"></div>
@@ -351,7 +351,7 @@ export default function ScanPage() {
         <div className="relative z-10">
           <div className="flex items-center justify-between gap-3 mb-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm flex-shrink-0">
+              <div className="bg-sunbeam/30 p-2.5 rounded-xl backdrop-blur-sm flex-shrink-0">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
@@ -372,7 +372,7 @@ export default function ScanPage() {
           </div>
           <div className="flex items-start gap-3">
             <div className="w-[42px] flex-shrink-0"></div>
-            <p className="text-sm text-green-100 flex-1">
+            <p className="text-sm text-olive-100 flex-1">
               Position leaf inside the frame and capture
             </p>
           </div>

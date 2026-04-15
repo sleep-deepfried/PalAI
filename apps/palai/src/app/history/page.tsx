@@ -50,7 +50,7 @@ async function ScansList() {
         </p>
         <Link
           href="/scan"
-          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold hover:from-green-700 hover:to-green-800 active:scale-95 transition-all shadow-lg animate-fade-in-delay-3"
+          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-olive-500 to-olive-600 text-white rounded-xl font-bold hover:from-olive-600 hover:to-olive-700 active:scale-95 transition-all shadow-lg animate-fade-in-delay-3"
         >
           <Camera className="w-5 h-5" />
           Start Scanning
@@ -69,9 +69,9 @@ async function ScansList() {
     }
     return acc;
   }, {});
-  
+
   const topDisease = Object.entries(diseaseCounts).sort(([, a], [, b]) => b - a)[0];
-  const healthyCount = scans.filter(s => s.label === 'HEALTHY').length;
+  const healthyCount = scans.filter((s) => s.label === 'HEALTHY').length;
   const diseasedCount = scans.length - healthyCount;
 
   return (
@@ -81,55 +81,53 @@ async function ScansList() {
         <div className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-center mb-3">
-              <div className="p-3 rounded-xl bg-blue-100">
-                <FileText className="w-6 h-6 text-blue-600" />
+              <div className="p-3 rounded-xl bg-olive-100">
+                <FileText className="w-6 h-6 text-olive-600" />
               </div>
             </div>
             <div className="text-center">
-              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-                Total Scans
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {totalScans}
-              </div>
+              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">Total Scans</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{totalScans}</div>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-center mb-3">
-              <div className="p-3 rounded-xl bg-green-100">
-                <TrendingUp className="w-6 h-6 text-green-600" />
+              <div className="p-3 rounded-xl bg-sunbeam-100">
+                <TrendingUp className="w-6 h-6 text-sunbeam-600" />
               </div>
             </div>
             <div className="text-center">
-              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-                Healthy
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {healthyCount}
-              </div>
+              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">Healthy</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{healthyCount}</div>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-center mb-3">
               <div className="p-3 rounded-xl bg-orange-100">
-                <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <svg
+                  className="w-6 h-6 text-orange-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
                 </svg>
               </div>
             </div>
             <div className="text-center">
-              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-                Diseased
-              </div>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {diseasedCount}
-              </div>
+              <div className="text-xs sm:text-sm font-medium text-gray-500 mb-2">Diseased</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{diseasedCount}</div>
             </div>
           </div>
         </div>
@@ -145,8 +143,10 @@ async function ScansList() {
             <h3 className="font-semibold text-gray-900 text-sm">Most Common Issue</h3>
           </div>
           <p className="text-sm text-gray-700 ml-8">
-            <span className="font-bold">{LABEL_LABELS[topDisease[0] as keyof typeof LABEL_LABELS]}</span>
-            {' '}detected in {topDisease[1]} scan{topDisease[1] > 1 ? 's' : ''}
+            <span className="font-bold">
+              {LABEL_LABELS[topDisease[0] as keyof typeof LABEL_LABELS]}
+            </span>{' '}
+            detected in {topDisease[1]} scan{topDisease[1] > 1 ? 's' : ''}
           </p>
         </div>
       )}
@@ -172,9 +172,9 @@ function LoadingSkeleton() {
 
 export default function HistoryPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
+    <div className="min-h-screen bg-ivory pb-20">
       {/* Enhanced Header with Gradient */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white px-4 pt-72 pb-8 safe-area-top relative overflow-hidden">
+      <div className="bg-gradient-to-br from-olive-500 via-olive-600 to-olive-700 text-white px-4 pt-72 pb-8 safe-area-top relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
@@ -184,7 +184,7 @@ export default function HistoryPage() {
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+              <div className="bg-sunbeam/30 p-2 rounded-xl backdrop-blur-sm">
                 <HistoryIcon className="w-7 h-7" />
               </div>
               <div>
@@ -195,9 +195,7 @@ export default function HistoryPage() {
               <ClearAllButton />
             </Suspense>
           </div>
-          <p className="text-blue-100">
-            Track and review all your rice leaf diagnoses
-          </p>
+          <p className="text-olive-100">Track and review all your rice leaf diagnoses</p>
         </div>
       </div>
 

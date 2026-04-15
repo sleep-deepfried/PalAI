@@ -38,7 +38,7 @@ export function ScanCard({ scan }: ScanCardProps) {
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!showConfirm) {
       setShowConfirm(true);
       return;
@@ -68,38 +68,40 @@ export function ScanCard({ scan }: ScanCardProps) {
   };
 
   const isHealthy = scan.label === 'HEALTHY';
-  
+
   return (
     <div className="relative group">
       <Link
         href={`/result/${scan.id}`}
-        className={`block bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border border-gray-100 ${
+        className={`block bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 border border-ivory-200 ${
           showConfirm ? 'opacity-50' : ''
-        } ${isDeleting ? 'pointer-events-none opacity-30' : 'active:scale-[0.98] hover:border-green-200'}`}
+        } ${isDeleting ? 'pointer-events-none opacity-30' : 'active:scale-[0.98] hover:border-olive-200'}`}
       >
         <div className="flex gap-4 p-4">
           {/* Image Thumbnail with Gradient Overlay */}
-          <div className="relative w-24 h-24 flex-shrink-0 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-green-200 transition-all">
+          <div className="relative w-24 h-24 flex-shrink-0 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-olive-200 transition-all">
             <Image
               src={scan.image_url}
               alt={LABEL_LABELS[scan.label]}
               fill
               className="object-cover"
             />
-            <div className={`absolute inset-0 bg-gradient-to-t ${
-              isHealthy ? 'from-green-500/10' : 'from-orange-500/10'
-            } to-transparent`} />
+            <div
+              className={`absolute inset-0 bg-gradient-to-t ${
+                isHealthy ? 'from-green-500/10' : 'from-orange-500/10'
+              } to-transparent`}
+            />
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900 text-base line-clamp-1 group-hover:text-green-600 transition-colors">
+                <h3 className="font-bold text-gray-900 text-base line-clamp-1 group-hover:text-olive-600 transition-colors">
                   {LABEL_LABELS[scan.label]}
                 </h3>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-green-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-olive-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
             </div>
 
             <div className="flex items-center gap-2 mb-3">
@@ -108,7 +110,9 @@ export function ScanCard({ scan }: ScanCardProps) {
 
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
               <Clock className="w-3.5 h-3.5" />
-              <span>{formattedDate} • {formattedTime}</span>
+              <span>
+                {formattedDate} • {formattedTime}
+              </span>
             </div>
           </div>
         </div>

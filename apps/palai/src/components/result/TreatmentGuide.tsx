@@ -23,11 +23,11 @@ interface TreatmentGuideProps {
   language: 'en' | 'tl';
 }
 
-export function TreatmentGuide({ 
-  preventionSteps = [], 
-  treatmentSteps = [], 
+export function TreatmentGuide({
+  preventionSteps = [],
+  treatmentSteps = [],
   sources = [],
-  language 
+  language,
 }: TreatmentGuideProps) {
   const [activeTab, setActiveTab] = useState<'prevention' | 'treatment'>('prevention');
 
@@ -46,7 +46,7 @@ export function TreatmentGuide({
             onClick={() => setActiveTab('prevention')}
             className={`flex items-center gap-2 px-4 py-2 font-medium text-sm transition-colors ${
               activeTab === 'prevention'
-                ? 'text-green-600 border-b-2 border-green-600'
+                ? 'text-olive-600 border-b-2 border-olive-600'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -59,7 +59,7 @@ export function TreatmentGuide({
             onClick={() => setActiveTab('treatment')}
             className={`flex items-center gap-2 px-4 py-2 font-medium text-sm transition-colors ${
               activeTab === 'treatment'
-                ? 'text-green-600 border-b-2 border-green-600'
+                ? 'text-olive-600 border-b-2 border-olive-600'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -74,10 +74,10 @@ export function TreatmentGuide({
         {activeSteps.map((step, index) => (
           <div key={index} className="flex gap-4">
             {/* Step Number */}
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold text-sm">
+            <div className="flex-shrink-0 w-8 h-8 bg-olive-100 text-olive-700 rounded-full flex items-center justify-center font-bold text-sm">
               {step.step}
             </div>
-            
+
             {/* Step Content */}
             <div className="flex-1">
               <h4 className="font-semibold text-gray-900 mb-1">
@@ -104,7 +104,7 @@ export function TreatmentGuide({
                 href={source.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700 hover:underline"
+                className="flex items-center gap-2 text-sm text-olive-600 hover:text-olive-700 hover:underline"
               >
                 <ExternalLink className="w-4 h-4 flex-shrink-0" />
                 <span className="line-clamp-1">{source.title}</span>
@@ -116,4 +116,3 @@ export function TreatmentGuide({
     </div>
   );
 }
-

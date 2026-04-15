@@ -15,7 +15,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 safe-area-bottom z-50 shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-ivory/95 backdrop-blur-md border-t border-olive-200 safe-area-bottom z-50 shadow-lg">
       <div className="grid grid-cols-4 h-16">
         {links.map((link) => {
           const isActive = pathname === link.href;
@@ -27,12 +27,12 @@ export function BottomNav() {
               href={link.href}
               data-tour={link.label === 'Scan' ? 'nav-scan' : undefined}
               className={`flex flex-col items-center justify-center gap-1 transition-all relative ${
-                isActive ? 'text-green-600' : 'text-gray-600 hover:text-green-600 active:scale-95'
+                isActive ? 'text-olive' : 'text-olive-400 hover:text-olive active:scale-95'
               }`}
             >
               {/* Active indicator */}
               {isActive && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-green-600 rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-olive rounded-full" />
               )}
 
               <Icon className={`w-6 h-6 transition-transform ${isActive ? 'scale-110' : ''}`} />

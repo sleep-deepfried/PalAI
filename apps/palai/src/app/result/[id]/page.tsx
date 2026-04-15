@@ -50,11 +50,11 @@ async function ResultContent({ id }: { id: string }) {
   const diseaseIcon = isHealthy ? CheckCircle : AlertTriangle;
   const DiseaseIcon = diseaseIcon;
   const headerGradient = isHealthy
-    ? 'from-green-600 via-green-700 to-emerald-800'
+    ? 'from-olive-500 via-olive-600 to-olive-700'
     : 'from-amber-600 via-orange-600 to-red-700';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
+    <div className="min-h-screen bg-ivory pb-20">
       {/* Enhanced Header with Gradient */}
       <div
         className={`bg-gradient-to-br ${headerGradient} text-white px-4 py-8 safe-area-top relative overflow-hidden`}
@@ -79,7 +79,7 @@ async function ResultContent({ id }: { id: string }) {
           <div className="flex items-start gap-4">
             <div
               className={`flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center ${
-                isHealthy ? 'bg-green-500/30' : 'bg-orange-500/30'
+                isHealthy ? 'bg-sunbeam/30' : 'bg-orange-500/30'
               } backdrop-blur-sm`}
             >
               <DiseaseIcon className="w-8 h-8" />
@@ -142,14 +142,14 @@ async function ResultContent({ id }: { id: string }) {
         <div className="grid grid-cols-2 gap-4">
           <Link
             href="/scan"
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:from-green-700 hover:to-green-800 active:scale-[0.98] transition-all shadow-lg"
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-olive-500 to-olive-600 text-white rounded-xl font-semibold hover:from-olive-600 hover:to-olive-700 active:scale-[0.98] transition-all shadow-lg"
           >
             <Camera className="w-5 h-5" />
             Scan Again
           </Link>
           <Link
             href="/history"
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:scale-[0.98] transition-all shadow-lg border border-gray-200"
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 active:scale-[0.98] transition-all shadow-lg border border-ivory-200"
           >
             <HistoryIcon className="w-5 h-5" />
             View History

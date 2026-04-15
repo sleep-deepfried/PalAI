@@ -56,7 +56,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-ivory">
       <div className="w-full max-w-md">
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mb-8">
@@ -64,7 +64,7 @@ export default function OnboardingPage() {
             <div
               key={index}
               className={`h-2 w-2 rounded-full transition-colors ${
-                index === currentStep ? 'bg-green-600' : 'bg-gray-300'
+                index === currentStep ? 'bg-olive-600' : 'bg-ivory-300'
               }`}
             />
           ))}
@@ -85,7 +85,7 @@ export default function OnboardingPage() {
             type="button"
             onClick={handleNext}
             disabled={loading}
-            className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="w-full px-4 py-3 bg-olive-600 text-white rounded-lg hover:bg-olive-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {loading ? 'Loading...' : isLastStep ? 'Complete' : 'Next'}
           </button>

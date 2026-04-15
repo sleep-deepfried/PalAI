@@ -53,10 +53,10 @@ const severityColors = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen flex flex-col bg-ivory">
       <OnboardingTour />
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white px-4 py-10 sm:py-16 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-olive-500 via-olive-600 to-olive-700 text-white px-4 py-10 sm:py-16 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
@@ -75,7 +75,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <p className="text-lg sm:text-xl text-green-50 mb-6 animate-fade-in-delay-1">
+          <p className="text-lg sm:text-xl text-olive-100 mb-6 animate-fade-in-delay-1">
             AI-powered rice leaf disease detection para sa Filipino farmers
           </p>
 
@@ -99,15 +99,15 @@ export default function HomePage() {
           <div className="grid grid-cols-3 gap-3 animate-fade-in-delay-3">
             <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg py-3">
               <div className="text-2xl font-bold">5+</div>
-              <div className="text-xs text-green-100">Diseases</div>
+              <div className="text-xs text-olive-100">Diseases</div>
             </div>
             <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg py-3">
               <div className="text-2xl font-bold">Fast</div>
-              <div className="text-xs text-green-100">Analysis</div>
+              <div className="text-xs text-olive-100">Analysis</div>
             </div>
             <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg py-3">
               <div className="text-2xl font-bold">Free</div>
-              <div className="text-xs text-green-100">To Use</div>
+              <div className="text-xs text-olive-100">To Use</div>
             </div>
           </div>
         </div>
@@ -119,15 +119,15 @@ export default function HomePage() {
         <Link
           href="/scan"
           data-tour="scan-cta"
-          className="block w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-2xl p-6 shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-200 mb-6 animate-float"
+          className="block w-full bg-gradient-to-r from-sunbeam-300 to-sunbeam-400 hover:from-sunbeam-400 hover:to-sunbeam-500 text-olive-700 rounded-2xl p-6 shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-200 mb-6 animate-float"
         >
           <div className="flex items-center gap-4">
-            <div className="bg-white/30 p-4 rounded-xl backdrop-blur-sm">
+            <div className="bg-olive-600/20 p-4 rounded-xl backdrop-blur-sm">
               <Camera className="w-8 h-8" />
             </div>
             <div className="flex-1 text-left">
               <div className="text-xl font-bold mb-1">Scan Rice Leaf Now</div>
-              <div className="text-sm text-green-50">Take a photo or upload image</div>
+              <div className="text-sm text-olive-600">Take a photo or upload image</div>
             </div>
             <div className="text-2xl">→</div>
           </div>
@@ -138,10 +138,10 @@ export default function HomePage() {
           <Link
             href="/history"
             data-tour="history"
-            className="bg-white rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-200 active:scale-95 border border-gray-100 group"
+            className="bg-white rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-200 active:scale-95 border border-ivory-200 group"
           >
-            <div className="bg-blue-50 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors">
-              <History className="w-6 h-6 text-blue-600" />
+            <div className="bg-olive-50 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:bg-olive-100 transition-colors">
+              <History className="w-6 h-6 text-olive-600" />
             </div>
             <div className="text-sm font-semibold text-gray-900">History</div>
             <div className="text-xs text-gray-500">View past scans</div>
@@ -150,10 +150,10 @@ export default function HomePage() {
           <Link
             href="/stats"
             data-tour="insights"
-            className="bg-white rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-200 active:scale-95 border border-gray-100 group"
+            className="bg-white rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-200 active:scale-95 border border-ivory-200 group"
           >
-            <div className="bg-purple-50 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:bg-purple-100 transition-colors">
-              <BarChart3 className="w-6 h-6 text-purple-600" />
+            <div className="bg-sunbeam-50 w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:bg-sunbeam-100 transition-colors">
+              <BarChart3 className="w-6 h-6 text-sunbeam-600" />
             </div>
             <div className="text-sm font-semibold text-gray-900">Insights</div>
             <div className="text-xs text-gray-500">View analytics</div>
@@ -169,7 +169,7 @@ export default function HomePage() {
 
           <div className="space-y-4">
             <div className="flex gap-4 items-start group">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
+              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-olive-400 to-olive-500 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
                 1
               </div>
               <div className="flex-1">
@@ -181,7 +181,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex gap-4 items-start group">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
+              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-sunbeam-400 to-sunbeam-500 text-olive-800 rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
                 2
               </div>
               <div className="flex-1">
@@ -193,7 +193,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex gap-4 items-start group">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
+              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-olive-500 to-olive-600 text-white rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform">
                 3
               </div>
               <div className="flex-1">
@@ -261,7 +261,7 @@ export default function HomePage() {
           <div className="mt-4 text-center">
             <Link
               href="/scan"
-              className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-medium text-sm group"
+              className="inline-flex items-center gap-2 text-olive-600 hover:text-olive-700 font-medium text-sm group"
             >
               Scan your leaf to identify disease
               <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -270,12 +270,12 @@ export default function HomePage() {
         </div>
 
         {/* CTA Footer */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-6 text-white text-center shadow-xl">
+        <div className="bg-gradient-to-r from-olive-500 to-olive-600 rounded-2xl p-6 text-white text-center shadow-xl">
           <h3 className="font-bold text-lg mb-2">Ready to protect your crops?</h3>
-          <p className="text-sm text-green-50 mb-4">Start scanning rice leaves now for free</p>
+          <p className="text-sm text-olive-100 mb-4">Start scanning rice leaves now for free</p>
           <Link
             href="/scan"
-            className="inline-block bg-white text-green-600 font-semibold px-6 py-3 rounded-xl hover:bg-green-50 active:scale-95 transition-all shadow-lg"
+            className="inline-block bg-sunbeam text-olive-700 font-semibold px-6 py-3 rounded-xl hover:bg-sunbeam-200 active:scale-95 transition-all shadow-lg"
           >
             Start Scanning
           </Link>

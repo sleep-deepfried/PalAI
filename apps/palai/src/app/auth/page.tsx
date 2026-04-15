@@ -117,7 +117,7 @@ export default function AuthPage() {
 
   if (state.view === 'otp-verify') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-ivory">
         <div className="w-full max-w-md">
           <h1 className="text-3xl font-bold mb-2 text-center text-gray-900">Check your email</h1>
           <p className="text-center text-gray-500 mb-8">
@@ -137,7 +137,7 @@ export default function AuthPage() {
                 onChange={(e) => setState((prev) => ({ ...prev, otpCode: e.target.value }))}
                 placeholder="Enter code"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2 border border-ivory-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-olive-500"
               />
             </div>
             {state.error && (
@@ -148,7 +148,7 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={state.loading || !state.otpCode}
-              className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full px-4 py-2 bg-olive-600 text-white rounded-lg hover:bg-olive-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {state.loading ? 'Verifying...' : 'Verify code'}
             </button>
@@ -158,7 +158,7 @@ export default function AuthPage() {
               type="button"
               onClick={handleResendCode}
               disabled={state.loading}
-              className="text-green-600 hover:text-green-700 text-sm font-medium disabled:opacity-50"
+              className="text-olive-600 hover:text-olive-700 text-sm font-medium disabled:opacity-50"
             >
               Resend code
             </button>
@@ -180,14 +180,14 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center p-8 bg-ivory">
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-bold mb-8 text-center text-gray-900">Welcome to PalAI</h1>
 
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-900 transition-colors"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-ivory-300 rounded-lg hover:bg-ivory-200 text-gray-900 transition-colors"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -211,9 +211,9 @@ export default function AuthPage() {
         </button>
 
         <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-gray-300" />
+          <div className="flex-1 h-px bg-ivory-300" />
           <span className="text-sm text-gray-500">or</span>
-          <div className="flex-1 h-px bg-gray-300" />
+          <div className="flex-1 h-px bg-ivory-300" />
         </div>
 
         <form onSubmit={handleEmailSubmit} className="space-y-4">
@@ -230,7 +230,7 @@ export default function AuthPage() {
               }
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-2 border border-ivory-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-olive-500"
             />
           </div>
           {state.error && (
@@ -241,7 +241,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={state.loading}
-            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full px-4 py-2 bg-olive-600 text-white rounded-lg hover:bg-olive-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {state.loading ? 'Sending code...' : 'Continue with email'}
           </button>
