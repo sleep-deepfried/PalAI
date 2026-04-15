@@ -80,7 +80,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Start muted by default
 
   // ---- Refs (mutable across renders, not triggering re-renders) ----
   const sessionRef = useRef<any>(null);
@@ -93,7 +93,7 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   const statusRef = useRef<LiveSessionState['status']>('idle');
   const currentCameraIndexRef = useRef(0);
   const availableCamerasRef = useRef<MediaDeviceInfo[]>([]);
-  const isMutedRef = useRef(false);
+  const isMutedRef = useRef(true); // Start muted by default
   const closingLiveSessionRef = useRef(false);
   const liveSessionEpochRef = useRef(0);
 
@@ -258,8 +258,20 @@ export function useLiveSession(options: UseLiveSessionOptions): UseLiveSessionRe
   // ---- toggleMute ----
 
   const toggleMute = useCallback(() => {
+    const wasMuted = isMutedRef.current;
     isMutedRef.current = !isMutedRef.current;
     setIsMuted(isMutedRef.current);
+
+    // When unmuting, prompt AI to respond based on what it sees
+    if (wasMuted && !isMutedRef.current && sessionRef.current) {
+      try {
+        sessionRef.current.sendRealtimeInput({
+          text: 'The farmer is now ready to talk. Look at the camera and tell them what you see. If you see rice leaves, diagnose them.',
+        });
+      } catch {
+        // Session may have closed
+      }
+    }
   }, []);
 
   // ---- Handle incoming messages ----
