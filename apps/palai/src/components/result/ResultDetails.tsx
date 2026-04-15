@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { TreatmentGuide } from './TreatmentGuide';
+import { SprayControl } from './SprayControl';
 import type { TreatmentStep, Source } from '@/types/database';
 
 interface ResultDetailsProps {
@@ -61,7 +62,7 @@ export function ResultDetails({
         }
 
         const data = await response.json();
-        
+
         setPreventionSteps(data.preventionSteps || []);
         setTreatmentSteps(data.treatmentSteps || []);
         setSources(data.sources || []);
@@ -103,7 +104,9 @@ export function ResultDetails({
       {/* Cautions */}
       {cautions.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-amber-900 mb-3">⚠️ {language === 'en' ? 'Cautions' : 'Babala'}</h3>
+          <h3 className="text-sm font-semibold text-amber-900 mb-3">
+            ⚠️ {language === 'en' ? 'Cautions' : 'Babala'}
+          </h3>
           <ul className="space-y-2">
             {cautions.map((caution, index) => (
               <li key={index} className="flex items-start gap-2 text-sm text-amber-800">
@@ -128,8 +131,8 @@ export function ResultDetails({
       ) : error ? (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
           <p className="text-sm text-red-800">
-            {language === 'en' 
-              ? 'Failed to load treatment guide. Please refresh the page.' 
+            {language === 'en'
+              ? 'Failed to load treatment guide. Please refresh the page.'
               : 'Hindi ma-load ang treatment guide. Paki-refresh ang page.'}
           </p>
         </div>
@@ -141,7 +144,9 @@ export function ResultDetails({
           language={language}
         />
       )}
+
+      {/* Spray Control - only show for diseased plants */}
+      <SprayControl show={disease !== 'HEALTHY'} language={language} />
     </>
   );
 }
-
